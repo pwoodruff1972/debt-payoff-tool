@@ -9,6 +9,7 @@
         body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; background-color: #f4f7f6; margin: 2em; color: #333; }
         .container { max-width: 800px; margin: auto; background: white; padding: 2em; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
         h1, h2, h3 { color: #111; }
+        h2 { border-bottom: 1px solid #eee; padding-bottom: 10px; margin-top: 2em; }
         input[type="text"], input[type="number"] { width: 95%; padding: 10px; margin-bottom: 10px; border-radius: 4px; border: 1px solid #ccc; font-size: 16px; }
         button { background-color: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
         button:hover { background-color: #0056b3; }
@@ -16,12 +17,11 @@
         li { background: #e9ecef; padding: 15px; margin-bottom: 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
         .delete-btn { background-color: #dc3545; padding: 5px 10px; font-size: 12px; }
         .delete-btn:hover { background-color: #c82333; }
-        .strategy-selector, .calculator { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 2em; border: 1px solid #dee2e6; }
-        .strategy-selector h3, .calculator h3 { margin-top: 0; }
-        .strategy-selector label { margin-right: 20px; cursor: pointer; font-weight: 500;}
+        .strategy-selector, .calculator, .data-management { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 2em; border: 1px solid #dee2e6; }
+        .strategy-selector h3, .calculator h3, .data-management h3 { margin-top: 0; }
+        .strategy-selector label { margin-right: 20px; cursor: pointer; font-weight: 500; }
         .strategy-description { font-size: 14px; color: #666; padding-left: 22px; margin-bottom: 10px; margin-top: 2px; }
         #results { margin-top: 2em; background-color: #e6f7ff; border: 1px solid #91d5ff; padding: 20px; border-radius: 8px; }
-        #results h3 { margin-top: 0; }
         table { width: 100%; border-collapse: collapse; margin-top: 1em; }
         th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; }
         th { background-color: #f2f2f2; }
@@ -30,6 +30,8 @@
         #month-details { margin-top: 1.5em; padding: 15px; background-color: #fff; border: 1px solid #ccc; border-radius: 8px; }
         #month-details ul { padding-left: 20px; list-style-type: disc; }
         #month-details li { background: none; padding: 4px 0; margin-bottom: 0; display: list-item; }
+        .data-management button { background-color: #6c757d; margin-right: 10px; }
+        .data-management button:hover { background-color: #5a6268; }
     </style>
 </head>
 <body>
@@ -44,6 +46,14 @@
             <input type="number" id="debt-min-payment" placeholder="Minimum Monthly Payment ($)" required step="0.01">
             <button type="submit">Add Debt</button>
         </form>
+
+        <div class="data-management">
+            <h3>Data Management</h3>
+            <p style="font-size: 14px; color: #555; margin-top: 0;">Save your debt list to a file as a backup, or load a previous backup from a file.</p>
+            <button id="export-btn">Export to File</button>
+            <button id="import-btn">Import from File</button>
+            <input type="file" id="import-file" accept=".json" style="display: none;">
+        </div>
 
         <h2>2. Your Debts List</h2>
         <ul id="debt-list"></ul>
@@ -98,6 +108,9 @@
         const planTbody = document.getElementById('plan-tbody');
         const minPaymentGuidance = document.getElementById('min-payment-guidance');
         const monthDetailsDiv = document.getElementById('month-details');
+        const exportBtn = document.getElementById('export-btn');
+        const importBtn = document.getElementById('import-btn');
+        const importFileInput = document.getElementById('import-file');
 
         let debts = JSON.parse(localStorage.getItem('debts')) || [];
         let fullPlanDetails = [];
@@ -108,8 +121,44 @@
         strategyRadios.forEach(radio => radio.addEventListener('change', renderDebts));
         calculateBtn.addEventListener('click', calculatePlan);
         planTbody.addEventListener('click', handlePlanClick);
+        exportBtn.addEventListener('click', exportData);
+        importBtn.addEventListener('click', () => importFileInput.click());
+        importFileInput.addEventListener('change', importData);
 
         // --- CORE FUNCTIONS ---
+        function exportData() {
+            if (debts.length === 0) { alert("There is no data to export."); return; }
+            const dataStr = JSON.stringify(debts, null, 2);
+            const dataBlob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `my-debts-${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) { return; }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedDebts = JSON.parse(e.target.result);
+                    if (Array.isArray(importedDebts)) {
+                        debts = importedDebts;
+                        saveAndRender();
+                        alert("Data imported successfully!");
+                    } else { throw new Error("Invalid file format."); }
+                } catch (error) { alert("Error reading file. Please make sure it is a valid JSON file exported from this tool."); }
+            };
+            reader.onerror = function() { alert("Failed to read the file."); };
+            reader.readAsText(file);
+            importFileInput.value = '';
+        }
+
         function addDebt(event) {
             event.preventDefault();
             const name = document.getElementById('debt-name').value;
@@ -212,6 +261,7 @@
             debtList.innerHTML = '';
             debts.forEach(debt => {
                 const listItem = document.createElement('li');
+                // THIS IS THE LINE THAT WAS FIXED
                 listItem.innerHTML = `<div><strong>${debt.name}</strong><br><small>$${debt.balance.toFixed(2)} @ ${debt.apr}% APR (Min: $${debt.minPayment.toFixed(2)})</small></div><button class="delete-btn" data-id="${debt.id}">Delete</button>`;
                 debtList.appendChild(listItem);
             });
