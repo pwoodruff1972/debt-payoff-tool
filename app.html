@@ -25,9 +25,10 @@
         .strategy-description { font-size: 14px; color: #666; padding-left: 22px; margin-bottom: 10px; margin-top: 2px; }
         #results { margin-top: 2em; background-color: #e6f7ff; border: 1px solid #91d5ff; padding: 20px; border-radius: 8px; }
         table { width: 100%; border-collapse: collapse; margin-top: 1em; }
-        th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; }
+        th, td { text-align: left; padding: 12px 8px; border-bottom: 1px solid #ddd; }
         th { background-color: #f2f2f2; }
         #min-payment-guidance { display: block; margin-top: -5px; margin-bottom: 15px; font-size: 14px; color: #555; }
+        #plan-tbody tr { cursor: pointer; }
         #plan-tbody tr:hover { background-color: #d1ecf1; }
         #plan-tbody tr.paid-row { background-color: #d4edda; color: #555; text-decoration: line-through; }
         #plan-tbody tr.paid-row:hover { background-color: #c3e6cb; }
@@ -36,7 +37,7 @@
         #month-details li { background: none; padding: 4px 0; margin-bottom: 0; display: list-item; }
         .data-management button { background-color: #6c757d; margin-right: 10px; }
         .data-management button:hover { background-color: #5a6268; }
-        .toggle-paid-btn { background-color: #28a745; font-size: 12px; padding: 4px 8px; }
+        .toggle-paid-btn { background-color: #28a745; font-size: 12px; padding: 4px 8px; cursor: pointer; }
         .toggle-paid-btn.unmark { background-color: #ffc107; color: #333; }
     </style>
 </head>
@@ -95,7 +96,7 @@
         </div>
 
         <div id="results" style="display: none;">
-            <h3>Your Payoff Plan <small>(Click a month for details)</small></h3>
+            <h3>Your Payoff Plan <small>(Click a row for details)</small></h3>
             <p id="results-summary"></p>
             <table>
                 <thead>
@@ -127,7 +128,6 @@
         let fullPlanDetails = [];
         let paidMonths = JSON.parse(localStorage.getItem('paidMonths')) || [];
 
-
         // --- EVENT LISTENERS ---
         debtForm.addEventListener('submit', addDebt);
         debtList.addEventListener('click', handleListClick);
@@ -143,7 +143,8 @@
             if (debts.length === 0) { alert("There is no data to export."); return; }
             const dataToExport = {
                 debts: debts,
-                paidMonths: paidMonths
+                paidMonths: paidMonths,
+                budget: totalPaymentInput.value
             };
             const dataStr = JSON.stringify(dataToExport, null, 2);
             const dataBlob = new Blob([dataStr], { type: "application/json" });
@@ -167,8 +168,10 @@
                     if (Array.isArray(importedData.debts)) {
                         debts = importedData.debts;
                         paidMonths = importedData.paidMonths || [];
+                        localStorage.setItem('paidMonths', JSON.stringify(paidMonths));
+                        totalPaymentInput.value = importedData.budget || '';
                         saveAndRender();
-                        alert("Data imported successfully!");
+                        alert("Data imported successfully! Click 'Calculate Plan' to see your new schedule.");
                     } else { throw new Error("Invalid file format."); }
                 } catch (error) { alert("Error reading file. Please make sure it is a valid JSON file exported from this tool."); }
             };
@@ -190,6 +193,7 @@
             }
             const newDebt = { id: Date.now(), name, balance, apr, minPayment };
             debts.push(newDebt);
+            resetPlanAndProgress();
             saveAndRender();
             debtForm.reset();
         }
@@ -198,11 +202,18 @@
             if (event.target.classList.contains('delete-btn')) {
                 const idToDelete = parseInt(event.target.dataset.id);
                 debts = debts.filter(debt => debt.id !== idToDelete);
+                resetPlanAndProgress();
                 saveAndRender();
             }
         }
         
-        // --- CALCULATION ENGINE (REWRITTEN) ---
+        function resetPlanAndProgress() {
+            paidMonths = [];
+            localStorage.removeItem('paidMonths');
+            resultsDiv.style.display = 'none';
+        }
+
+        // --- CALCULATION ENGINE ---
         function calculatePlan() {
             const totalMonthlyPayment = parseFloat(totalPaymentInput.value);
             const totalMinimums = debts.reduce((sum, debt) => sum + debt.minPayment, 0);
@@ -210,8 +221,7 @@
             if (isNaN(totalMonthlyPayment) || totalMonthlyPayment <= 0) { alert("Please enter a valid total monthly payment."); return; }
             if (totalMonthlyPayment < totalMinimums) { alert(`Your total monthly payment must be at least $${totalMinimums.toFixed(2)} to cover your minimums.`); return; }
             
-            paidMonths = [];
-            localStorage.setItem('paidMonths', JSON.stringify(paidMonths));
+            localStorage.setItem('monthlyBudget', totalMonthlyPayment);
 
             const selectedStrategy = document.querySelector('input[name="strategy"]:checked').value;
             let simulationDebts = JSON.parse(JSON.stringify(debts));
@@ -226,7 +236,6 @@
                 
                 let interestForMonth = 0;
                 
-                // Step 1: Accrue interest
                 for (const debt of simulationDebts) {
                     if (debt.balance > 0) {
                         const monthlyInterest = debt.balance * (debt.apr / 100 / 12);
@@ -236,44 +245,43 @@
                 }
                 totalInterestPaid += interestForMonth;
 
-                // Step 2: Plan this month's payments, never exceeding the budget
-                let paymentBudget = totalMonthlyPayment;
                 let paymentsThisMonth = {};
                 for(const debt of simulationDebts) { paymentsThisMonth[debt.id] = 0; }
-
-                // Step 2a: Allocate minimums for all active debts
+                
+                let paymentBudget = totalMonthlyPayment;
+                let minimumsDueThisMonth = 0;
                 for (const debt of simulationDebts) {
                     if (debt.balance > 0) {
                         const minPayment = Math.min(debt.balance, debt.minPayment);
                         paymentsThisMonth[debt.id] = minPayment;
-                        paymentBudget -= minPayment;
+                        minimumsDueThisMonth += minPayment;
                     }
                 }
                 
-                // Step 2b: Allocate remaining budget (snowball) strategically
+                let extraPaymentPool = totalMonthlyPayment - minimumsDueThisMonth;
+
                 const paymentOrder = [...simulationDebts].sort((a, b) => {
                     if (a.balance <= 0) return 1; if (b.balance <= 0) return -1;
+                    const aBalanceOwed = a.balance - paymentsThisMonth[a.id];
+                    const bBalanceOwed = b.balance - paymentsThisMonth[b.id];
                     if (selectedStrategy === 'snowball') {
-                        const aOwed = a.balance - paymentsThisMonth[a.id];
-                        const bOwed = b.balance - paymentsThisMonth[b.id];
-                        if (aOwed === bOwed) return b.apr - a.apr;
-                        return aOwed - bOwed;
-                    } else { // avalanche
-                        if (b.apr === a.apr) return a.balance - b.balance;
+                        if (aBalanceOwed === bBalanceOwed) return b.apr - a.apr;
+                        return aBalanceOwed - bBalanceOwed;
+                    } else {
+                        if (b.apr === a.apr) return aBalanceOwed - bBalanceOwed;
                         return b.apr - a.apr;
                     }
                 });
 
                 for (const debt of paymentOrder) {
-                    if (paymentBudget > 0 && debt.balance > 0) {
+                    if (extraPaymentPool > 0 && debt.balance > 0) {
                         const remainingOwed = debt.balance - paymentsThisMonth[debt.id];
-                        const extraPayment = Math.min(remainingOwed, paymentBudget);
+                        const extraPayment = Math.min(remainingOwed, extraPaymentPool);
                         paymentsThisMonth[debt.id] += extraPayment;
-                        paymentBudget -= extraPayment;
+                        extraPaymentPool -= extraPayment;
                     }
                 }
-
-                // Step 3: Apply payments and record breakdown
+                
                 const monthBreakdown = { month: months, payments: [], totalInterest: interestForMonth };
                 for (const debt of simulationDebts) {
                     const paymentApplied = paymentsThisMonth[debt.id] || 0;
@@ -304,9 +312,7 @@
                 const tr = document.createElement('tr');
                 tr.dataset.index = index;
                 const isPaid = paidMonths.includes(row.month);
-                if(isPaid) {
-                    tr.classList.add('paid-row');
-                }
+                if(isPaid) tr.classList.add('paid-row');
 
                 const actualPaymentThisMonth = row.payments.reduce((sum, p) => sum + p.paymentApplied, 0);
                 const buttonText = isPaid ? 'Unmark' : 'Mark Paid';
@@ -325,11 +331,11 @@
 
         function handlePlanClick(event) {
             if (event.target.classList.contains('toggle-paid-btn')) {
+                event.stopPropagation(); // Prevent row click from firing
                 const month = parseInt(event.target.dataset.month);
                 toggleMonthPaid(month);
                 return;
             }
-
             const row = event.target.closest('tr');
             if (!row) return;
             const monthIndex = parseInt(row.dataset.index);
@@ -345,6 +351,7 @@
                 paidMonths.push(month);
             }
             localStorage.setItem('paidMonths', JSON.stringify(paidMonths));
+            
             const totalInterest = fullPlanDetails.reduce((sum, row) => sum + row.totalInterest, 0);
             displayResults(fullPlanDetails.length, totalInterest);
         }
@@ -366,6 +373,7 @@
             saveDebts();
             renderDebts();
             updateGuidance();
+            initializeState();
         }
         
         function renderDebts() {
@@ -387,6 +395,16 @@
                 minPaymentGuidance.textContent = `Your total minimum payment is $${totalMinimums.toFixed(2)}. Pay more to get out of debt faster!`;
             } else {
                 minPaymentGuidance.textContent = 'Enter your debts to see your minimum monthly payment.';
+            }
+        }
+
+        function initializeState() {
+            const savedBudget = localStorage.getItem('monthlyBudget');
+            if (savedBudget) {
+                totalPaymentInput.value = savedBudget;
+                if (debts.length > 0) {
+                    calculatePlan();
+                }
             }
         }
 
