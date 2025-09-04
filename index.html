@@ -10,6 +10,7 @@
             margin: 0;
             background-color: #f8f9fa;
             color: #333;
+            line-height: 1.6;
         }
         .navbar {
             background-color: #fff;
@@ -45,6 +46,7 @@
             font-weight: 600;
             border-radius: 8px;
             transition: background-color 0.2s;
+            display: inline-block; /* Helps with spacing */
         }
         .cta-button:hover {
             background-color: #0056b3;
@@ -69,6 +71,31 @@
             margin-top: 2rem;
             color: #888;
             font-size: 0.9rem;
+        }
+
+        /* --- NEW: Mobile Responsive Styles --- */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.2rem; /* Make heading smaller */
+            }
+            .hero p {
+                font-size: 1.1rem; /* Make subtitle smaller */
+            }
+            .features {
+                flex-direction: column; /* Stack features vertically */
+                gap: 2.5rem;
+                margin-top: 3rem;
+            }
+            .container {
+                padding: 1.5rem 1rem; /* Adjust padding for smaller screens */
+            }
+            .hero {
+                padding: 2rem 0.5rem;
+            }
+            .cta-button {
+                padding: 0.8rem 1.5rem;
+                font-size: 1.1rem;
+            }
         }
     </style>
 </head>
