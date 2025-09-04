@@ -210,9 +210,11 @@
                 months++;
                 if (months > 1200) { console.error("Calculation took too long."); break; }
                 
-                let moneyForMonth = totalMonthlyPayment;
+                let paymentBudget = totalMonthlyPayment;
                 let interestForMonth = 0;
-                
+                let paymentsThisMonth = {};
+                let minimumsDueThisMonth = 0;
+
                 // Accrue interest
                 for (const debt of simulationDebts) {
                     if (debt.balance > 0) {
@@ -223,18 +225,16 @@
                 }
                 totalInterestPaid += interestForMonth;
 
-                // Plan payments for the month
-                let paymentsThisMonth = {};
-                let minimumsDue = 0;
+                // Determine and allocate minimum payments
                 for (const debt of simulationDebts) {
                     if (debt.balance > 0) {
                         const minPayment = Math.min(debt.balance, debt.minPayment);
                         paymentsThisMonth[debt.id] = minPayment;
-                        minimumsDue += minPayment;
+                        minimumsDueThisMonth += minPayment;
                     }
                 }
-
-                let extraPaymentPool = totalMonthlyPayment - minimumsDue;
+                
+                let extraPaymentPool = totalMonthlyPayment - minimumsDueThisMonth;
 
                 const paymentOrder = [...simulationDebts].sort((a, b) => {
                     if (a.balance <= 0) return 1; if (b.balance <= 0) return -1;
@@ -271,23 +271,22 @@
                 monthBreakdown.remainingBalance = simulationDebts.reduce((sum, d) => sum + d.balance, 0);
                 fullPlanDetails.push(monthBreakdown);
             }
-            displayResults(months, totalInterestPaid, totalMonthlyPayment);
+            displayResults(months, totalInterestPaid);
         }
         
         // --- UI & RENDER FUNCTIONS ---
-        function displayResults(months, totalInterestPaid, totalMonthlyPayment) {
+        function displayResults(months, totalInterestPaid) {
             resultsDiv.style.display = 'block';
             monthDetailsDiv.style.display = 'none';
             const years = Math.floor(months / 12);
             const remainingMonths = months % 12;
             resultsSummary.textContent = `You will be debt-free in ${years} years and ${remainingMonths} months! Total interest paid: $${totalInterestPaid.toFixed(2)}.`;
             planTbody.innerHTML = '';
-            let totalPaidInPlan = 0;
+            
             fullPlanDetails.forEach((row, index) => {
                 const tr = document.createElement('tr');
                 tr.dataset.index = index;
                 const actualPaymentThisMonth = row.payments.reduce((sum, p) => sum + p.paymentApplied, 0);
-                totalPaidInPlan += actualPaymentThisMonth;
                 tr.innerHTML = `<td>${row.month}</td><td>$${actualPaymentThisMonth.toFixed(2)}</td><td>$${row.totalInterest.toFixed(2)}</td><td>$${row.remainingBalance.toFixed(2)}</td>`;
                 planTbody.appendChild(tr);
             });
@@ -303,8 +302,7 @@
 
         function displayMonthDetails(monthData) {
             monthDetailsDiv.style.display = 'block';
-            let note = `<p style="font-size: 14px; color: #555;"><em><strong>Note:</strong> If the 'Pay' amount for a debt is more than the balance, please pay only the remaining balance amount.</em></p>`;
-            let detailsHtml = `<h4>Details for Month ${monthData.month}</h4>${note}<ul>`;
+            let detailsHtml = `<h4>Details for Month ${monthData.month}</h4><ul>`;
             monthData.payments.forEach(p => {
                 if (p.paymentApplied > 0.005) {
                     detailsHtml += `<li><strong>${p.name}:</strong> Pay $${p.paymentApplied.toFixed(2)} (New Balance: $${p.newBalance.toFixed(2)})</li>`;
