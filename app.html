@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Debt Dashboard</title>
+    <title>Debt Payoff Tool</title>
     <style>
         html { scroll-behavior: smooth; }
-        body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; background-color: #f4f7f6; margin: 2em; color: #333; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 2em; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+        body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; background-color: #f4f7f6; margin: 0; color: #333; }
+        .container { max-width: 800px; margin: auto; padding: 1em 2em 2em 2em; }
+        .header { background-color: #fff; padding: 1rem 2rem; border-bottom: 1px solid #e9ecef; margin-bottom: 1em; }
+        .header a { text-decoration: none; font-weight: 600; color: #007bff; }
         h1, h2, h3 { color: #111; }
         h2 { border-bottom: 1px solid #eee; padding-bottom: 10px; margin-top: 2em; }
         input[type="text"], input[type="number"] { width: 95%; padding: 10px; margin-bottom: 10px; border-radius: 4px; border: 1px solid #ccc; font-size: 16px; }
@@ -17,8 +19,8 @@
         li { background: #e9ecef; padding: 15px; margin-bottom: 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
         .delete-btn { background-color: #dc3545; padding: 5px 10px; font-size: 12px; }
         .delete-btn:hover { background-color: #c82333; }
-        .strategy-selector, .calculator, .data-management { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 2em; border: 1px solid #dee2e6; }
-        .strategy-selector h3, .calculator h3, .data-management h3 { margin-top: 0; }
+        .card { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 2em; border: 1px solid #dee2e6; }
+        .card h3 { margin-top: 0; }
         .strategy-selector label { margin-right: 20px; cursor: pointer; font-weight: 500; }
         .strategy-description { font-size: 14px; color: #666; padding-left: 22px; margin-bottom: 10px; margin-top: 2px; }
         #results { margin-top: 2em; background-color: #e6f7ff; border: 1px solid #91d5ff; padding: 20px; border-radius: 8px; }
@@ -35,11 +37,16 @@
     </style>
 </head>
 <body>
+
+    <header class="header">
+        <a href="index.html">&larr; Back to Homepage</a>
+    </header>
+
     <div class="container">
-        <h1>My Debt Dashboard</h1>
+        <h1>Debt Payoff Tool</h1>
         
         <h2>1. Add Your Debts</h2>
-        <form id="debt-form">
+        <form id="debt-form" class="card">
             <input type="text" id="debt-name" placeholder="Debt Name (e.g., Visa)" required>
             <input type="number" id="debt-balance" placeholder="Current Balance ($)" required step="0.01">
             <input type="number" id="debt-apr" placeholder="Interest Rate (APR %)" required step="0.01">
@@ -47,7 +54,7 @@
             <button type="submit">Add Debt</button>
         </form>
 
-        <div class="data-management">
+        <div class="data-management card">
             <h3>Data Management</h3>
             <p style="font-size: 14px; color: #555; margin-top: 0;">Save your debt list to a file as a backup, or load a previous backup from a file.</p>
             <button id="export-btn">Export to File</button>
@@ -59,7 +66,7 @@
         <ul id="debt-list"></ul>
         
         <h2>3. Create a Payoff Plan</h2>
-        <div class="strategy-selector">
+        <div class="strategy-selector card">
             <h3>Choose Strategy</h3>
             <div>
                 <label><input type="radio" name="strategy" value="snowball" checked> Debt Snowball</label>
@@ -75,7 +82,7 @@
             </div>
         </div>
 
-        <div class="calculator">
+        <div class="calculator card">
             <h3>Set Your Budget</h3>
             <label for="total-payment">Total Monthly Payment ($)</label>
             <input type="number" id="total-payment" placeholder="e.g., 1500">
@@ -118,14 +125,14 @@
         // --- EVENT LISTENERS ---
         debtForm.addEventListener('submit', addDebt);
         debtList.addEventListener('click', handleListClick);
-        strategyRadios.forEach(radio => radio.addEventListener('change', renderDebts));
+        strategyRadios.forEach(radio => renderDebts());
         calculateBtn.addEventListener('click', calculatePlan);
         planTbody.addEventListener('click', handlePlanClick);
         exportBtn.addEventListener('click', exportData);
         importBtn.addEventListener('click', () => importFileInput.click());
         importFileInput.addEventListener('change', importData);
 
-        // --- CORE FUNCTIONS ---
+        // --- DATA FUNCTIONS ---
         function exportData() {
             if (debts.length === 0) { alert("There is no data to export."); return; }
             const dataStr = JSON.stringify(debts, null, 2);
@@ -165,7 +172,11 @@
             const balance = parseFloat(document.getElementById('debt-balance').value);
             const apr = parseFloat(document.getElementById('debt-apr').value);
             const minPayment = parseFloat(document.getElementById('debt-min-payment').value);
-            if (balance <= 0 || apr < 0 || minPayment <= 0) { alert("Please enter valid positive numbers for balance, APR, and minimum payment."); return; }
+            if (!name || isNaN(balance) || isNaN(apr) || isNaN(minPayment) || balance <= 0 || apr < 0 || minPayment <= 0) { alert("Please enter valid positive numbers for all fields."); return; }
+            if (debts.some(debt => debt.name.trim().toLowerCase() === name.trim().toLowerCase())) {
+                alert("A debt with this name already exists. Please use a unique name.");
+                return;
+            }
             const newDebt = { id: Date.now(), name, balance, apr, minPayment };
             debts.push(newDebt);
             saveAndRender();
@@ -179,51 +190,94 @@
                 saveAndRender();
             }
         }
-
+        
+        // --- CALCULATION ENGINE ---
         function calculatePlan() {
             const totalMonthlyPayment = parseFloat(totalPaymentInput.value);
             const totalMinimums = debts.reduce((sum, debt) => sum + debt.minPayment, 0);
             if (debts.length === 0) { alert("Please add at least one debt."); return; }
             if (isNaN(totalMonthlyPayment) || totalMonthlyPayment <= 0) { alert("Please enter a valid total monthly payment."); return; }
             if (totalMonthlyPayment < totalMinimums) { alert(`Your total monthly payment must be at least $${totalMinimums.toFixed(2)} to cover your minimums.`); return; }
+            
             const selectedStrategy = document.querySelector('input[name="strategy"]:checked').value;
             let simulationDebts = JSON.parse(JSON.stringify(debts));
-            if (selectedStrategy === 'snowball') { simulationDebts.sort((a, b) => a.balance - b.balance); } else { simulationDebts.sort((a, b) => b.apr - a.apr); }
-            let months = 0; let totalInterestPaid = 0; fullPlanDetails = []; let remainingDebts = true;
-            while (remainingDebts) {
+            
+            let months = 0;
+            let totalInterestPaid = 0;
+            fullPlanDetails = [];
+
+            while (simulationDebts.some(d => d.balance > 0)) {
                 months++;
-                let paymentForMonth = totalMonthlyPayment; let interestForMonth = 0; let snowball = 0;
-                const monthBreakdown = { month: months, payments: [] };
+                if (months > 1200) { console.error("Calculation took too long."); break; }
+                
+                let paymentBudget = totalMonthlyPayment;
+                let interestForMonth = 0;
+                let paymentsThisMonth = {};
+
                 for (const debt of simulationDebts) {
-                    let paymentApplied = 0;
                     if (debt.balance > 0) {
-                        let monthlyInterest = debt.balance * (debt.apr / 100 / 12); interestForMonth += monthlyInterest; debt.balance += monthlyInterest;
-                        let minPayment = Math.min(debt.balance, debt.minPayment); debt.balance -= minPayment; paymentForMonth -= minPayment; paymentApplied += minPayment;
-                    } else { snowball += debt.minPayment; }
-                    monthBreakdown.payments.push({ name: debt.name, paymentApplied: paymentApplied, newBalance: debt.balance });
-                }
-                totalInterestPaid += interestForMonth;
-                let extraPayment = paymentForMonth + snowball;
-                for (let i = 0; i < simulationDebts.length; i++) {
-                    const debt = simulationDebts[i];
-                    if (debt.balance > 0 && extraPayment > 0) {
-                        let payment = Math.min(debt.balance, extraPayment); debt.balance -= payment; extraPayment -= payment;
-                        monthBreakdown.payments[i].paymentApplied += payment; monthBreakdown.payments[i].newBalance = debt.balance;
+                        const monthlyInterest = debt.balance * (debt.apr / 100 / 12);
+                        interestForMonth += monthlyInterest;
+                        debt.balance += monthlyInterest;
                     }
                 }
-                const totalRemainingBalance = simulationDebts.reduce((sum, d) => sum + d.balance, 0);
-                monthBreakdown.totalInterest = interestForMonth; monthBreakdown.remainingBalance = totalRemainingBalance;
+                totalInterestPaid += interestForMonth;
+                
+                for (const debt of simulationDebts) {
+                    if (debt.balance > 0) {
+                        const minPayment = Math.min(debt.balance, debt.minPayment);
+                        paymentsThisMonth[debt.id] = minPayment;
+                        paymentBudget -= minPayment;
+                    }
+                }
+                
+                const paymentOrder = [...simulationDebts].sort((a, b) => {
+                    const aBalance = a.balance - (paymentsThisMonth[a.id] || 0);
+                    const bBalance = b.balance - (paymentsThisMonth[b.id] || 0);
+                    if (selectedStrategy === 'snowball') {
+                        if (aBalance === bBalance) return b.apr - a.apr;
+                        return aBalance - bBalance;
+                    } else { // avalanche
+                        if (b.apr === a.apr) return aBalance - bBalance;
+                        return b.apr - a.apr;
+                    }
+                });
+
+                for (const debt of paymentOrder) {
+                    if (paymentBudget > 0) {
+                        const alreadyAllocated = paymentsThisMonth[debt.id] || 0;
+                        const remainingOwed = debt.balance - alreadyAllocated;
+                        if (remainingOwed > 0) {
+                           const extraPayment = Math.min(remainingOwed, paymentBudget);
+                            paymentsThisMonth[debt.id] += extraPayment;
+                            paymentBudget -= extraPayment;
+                        }
+                    }
+                }
+                
+                const monthBreakdown = { month: months, payments: [], totalInterest: interestForMonth };
+                for (const debt of simulationDebts) {
+                    const paymentApplied = paymentsThisMonth[debt.id] || 0;
+                    debt.balance -= paymentApplied;
+                    monthBreakdown.payments.push({
+                        name: debt.name,
+                        paymentApplied: paymentApplied,
+                        newBalance: debt.balance
+                    });
+                }
+                
+                monthBreakdown.remainingBalance = simulationDebts.reduce((sum, d) => sum + d.balance, 0);
                 fullPlanDetails.push(monthBreakdown);
-                if (totalRemainingBalance <= 0) { remainingDebts = false; }
-                if (months > 1200) { break; }
             }
             displayResults(months, totalInterestPaid);
         }
         
+        // --- UI & RENDER FUNCTIONS ---
         function displayResults(months, totalInterestPaid) {
             resultsDiv.style.display = 'block';
             monthDetailsDiv.style.display = 'none';
-            const years = Math.floor(months / 12); const remainingMonths = months % 12;
+            const years = Math.floor(months / 12);
+            const remainingMonths = months % 12;
             resultsSummary.textContent = `You will be debt-free in ${years} years and ${remainingMonths} months! Total interest paid: $${totalInterestPaid.toFixed(2)}.`;
             planTbody.innerHTML = '';
             fullPlanDetails.forEach((row, index) => {
@@ -244,7 +298,8 @@
 
         function displayMonthDetails(monthData) {
             monthDetailsDiv.style.display = 'block';
-            let detailsHtml = `<h4>Details for Month ${monthData.month}</h4><ul>`;
+            let note = `<p style="font-size: 14px; color: #555;"><em><strong>Note:</strong> If a 'Pay' amount is higher than the debt's balance after interest, you should only pay the remaining balance to close the account.</em></p>`;
+            let detailsHtml = `<h4>Details for Month ${monthData.month}</h4>${note}<ul>`;
             monthData.payments.forEach(p => {
                 if (p.paymentApplied > 0.005) {
                     detailsHtml += `<li><strong>${p.name}:</strong> Pay $${p.paymentApplied.toFixed(2)} (New Balance: $${p.newBalance.toFixed(2)})</li>`;
@@ -255,23 +310,32 @@
             monthDetailsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        function saveAndRender() { saveDebts(); renderDebts(); updateGuidance(); }
+        function saveAndRender() {
+            saveDebts();
+            renderDebts();
+            updateGuidance();
+        }
         
         function renderDebts() {
             debtList.innerHTML = '';
             debts.forEach(debt => {
                 const listItem = document.createElement('li');
-                // THIS IS THE LINE THAT WAS FIXED
                 listItem.innerHTML = `<div><strong>${debt.name}</strong><br><small>$${debt.balance.toFixed(2)} @ ${debt.apr}% APR (Min: $${debt.minPayment.toFixed(2)})</small></div><button class="delete-btn" data-id="${debt.id}">Delete</button>`;
                 debtList.appendChild(listItem);
             });
         }
 
-        function saveDebts() { localStorage.setItem('debts', JSON.stringify(debts)); }
+        function saveDebts() {
+            localStorage.setItem('debts', JSON.stringify(debts));
+        }
         
         function updateGuidance() {
             const totalMinimums = debts.reduce((sum, debt) => sum + debt.minPayment, 0);
-            if (totalMinimums > 0) { minPaymentGuidance.textContent = `Your total minimum payment is $${totalMinimums.toFixed(2)}. Pay more to get out of debt faster!`; } else { minPaymentGuidance.textContent = 'Enter your debts to see your minimum monthly payment.'; }
+            if (totalMinimums > 0) {
+                minPaymentGuidance.textContent = `Your total minimum payment is $${totalMinimums.toFixed(2)}. Pay more to get out of debt faster!`;
+            } else {
+                minPaymentGuidance.textContent = 'Enter your debts to see your minimum monthly payment.';
+            }
         }
 
         // --- INITIALIZATION ---
@@ -279,3 +343,4 @@
     </script>
 </body>
 </html>
+
