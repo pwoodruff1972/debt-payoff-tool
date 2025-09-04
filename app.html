@@ -28,12 +28,16 @@
         th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; }
         th { background-color: #f2f2f2; }
         #min-payment-guidance { display: block; margin-top: -5px; margin-bottom: 15px; font-size: 14px; color: #555; }
-        #plan-tbody tr:hover { background-color: #d1ecf1; cursor: pointer; }
+        #plan-tbody tr:hover { background-color: #d1ecf1; }
+        #plan-tbody tr.paid-row { background-color: #d4edda; color: #555; text-decoration: line-through; }
+        #plan-tbody tr.paid-row:hover { background-color: #c3e6cb; }
         #month-details { margin-top: 1.5em; padding: 15px; background-color: #fff; border: 1px solid #ccc; border-radius: 8px; }
         #month-details ul { padding-left: 20px; list-style-type: disc; }
         #month-details li { background: none; padding: 4px 0; margin-bottom: 0; display: list-item; }
         .data-management button { background-color: #6c757d; margin-right: 10px; }
         .data-management button:hover { background-color: #5a6268; }
+        .toggle-paid-btn { background-color: #28a745; font-size: 12px; padding: 4px 8px; }
+        .toggle-paid-btn.unmark { background-color: #ffc107; color: #333; }
     </style>
 </head>
 <body>
@@ -91,11 +95,11 @@
         </div>
 
         <div id="results" style="display: none;">
-            <h3>Your Payoff Plan <small>(Click a month for details, shown below)</small></h3>
+            <h3>Your Payoff Plan <small>(Click a month for details)</small></h3>
             <p id="results-summary"></p>
             <table>
                 <thead>
-                    <tr><th>Month</th><th>Total Payment</th><th>Interest Paid</th><th>Remaining Balance</th></tr>
+                    <tr><th>Month</th><th>Total Payment</th><th>Interest Paid</th><th>Remaining Balance</th><th>Status</th></tr>
                 </thead>
                 <tbody id="plan-tbody"></tbody>
             </table>
@@ -121,6 +125,8 @@
 
         let debts = JSON.parse(localStorage.getItem('debts')) || [];
         let fullPlanDetails = [];
+        let paidMonths = JSON.parse(localStorage.getItem('paidMonths')) || [];
+
 
         // --- EVENT LISTENERS ---
         debtForm.addEventListener('submit', addDebt);
@@ -135,12 +141,16 @@
         // --- DATA FUNCTIONS ---
         function exportData() {
             if (debts.length === 0) { alert("There is no data to export."); return; }
-            const dataStr = JSON.stringify(debts, null, 2);
+            const dataToExport = {
+                debts: debts,
+                paidMonths: paidMonths
+            };
+            const dataStr = JSON.stringify(dataToExport, null, 2);
             const dataBlob = new Blob([dataStr], { type: "application/json" });
             const url = URL.createObjectURL(dataBlob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = `my-debts-${new Date().toISOString().slice(0,10)}.json`;
+            link.download = `my-debt-plan-${new Date().toISOString().slice(0,10)}.json`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -153,9 +163,10 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const importedDebts = JSON.parse(e.target.result);
-                    if (Array.isArray(importedDebts)) {
-                        debts = importedDebts;
+                    const importedData = JSON.parse(e.target.result);
+                    if (Array.isArray(importedData.debts)) {
+                        debts = importedData.debts;
+                        paidMonths = importedData.paidMonths || [];
                         saveAndRender();
                         alert("Data imported successfully!");
                     } else { throw new Error("Invalid file format."); }
@@ -199,6 +210,9 @@
             if (isNaN(totalMonthlyPayment) || totalMonthlyPayment <= 0) { alert("Please enter a valid total monthly payment."); return; }
             if (totalMonthlyPayment < totalMinimums) { alert(`Your total monthly payment must be at least $${totalMinimums.toFixed(2)} to cover your minimums.`); return; }
             
+            paidMonths = [];
+            localStorage.setItem('paidMonths', JSON.stringify(paidMonths));
+
             const selectedStrategy = document.querySelector('input[name="strategy"]:checked').value;
             let simulationDebts = JSON.parse(JSON.stringify(debts));
             
@@ -210,12 +224,9 @@
                 months++;
                 if (months > 1200) { console.error("Calculation took too long."); break; }
                 
-                let paymentBudget = totalMonthlyPayment;
                 let interestForMonth = 0;
-                let paymentsThisMonth = {};
-                let minimumsDueThisMonth = 0;
-
-                // Accrue interest
+                
+                // Step 1: Accrue interest
                 for (const debt of simulationDebts) {
                     if (debt.balance > 0) {
                         const monthlyInterest = debt.balance * (debt.apr / 100 / 12);
@@ -225,22 +236,28 @@
                 }
                 totalInterestPaid += interestForMonth;
 
-                // Determine and allocate minimum payments
+                // Step 2: Plan this month's payments, never exceeding the budget
+                let paymentBudget = totalMonthlyPayment;
+                let paymentsThisMonth = {};
+                for(const debt of simulationDebts) { paymentsThisMonth[debt.id] = 0; }
+
+                // Step 2a: Allocate minimums for all active debts
                 for (const debt of simulationDebts) {
                     if (debt.balance > 0) {
                         const minPayment = Math.min(debt.balance, debt.minPayment);
                         paymentsThisMonth[debt.id] = minPayment;
-                        minimumsDueThisMonth += minPayment;
+                        paymentBudget -= minPayment;
                     }
                 }
                 
-                let extraPaymentPool = totalMonthlyPayment - minimumsDueThisMonth;
-
+                // Step 2b: Allocate remaining budget (snowball) strategically
                 const paymentOrder = [...simulationDebts].sort((a, b) => {
                     if (a.balance <= 0) return 1; if (b.balance <= 0) return -1;
                     if (selectedStrategy === 'snowball') {
-                        if (a.balance === b.balance) return b.apr - a.apr;
-                        return a.balance - b.balance;
+                        const aOwed = a.balance - paymentsThisMonth[a.id];
+                        const bOwed = b.balance - paymentsThisMonth[b.id];
+                        if (aOwed === bOwed) return b.apr - a.apr;
+                        return aOwed - bOwed;
                     } else { // avalanche
                         if (b.apr === a.apr) return a.balance - b.balance;
                         return b.apr - a.apr;
@@ -248,15 +265,15 @@
                 });
 
                 for (const debt of paymentOrder) {
-                    if (extraPaymentPool > 0 && debt.balance > 0) {
+                    if (paymentBudget > 0 && debt.balance > 0) {
                         const remainingOwed = debt.balance - paymentsThisMonth[debt.id];
-                        const extraPayment = Math.min(remainingOwed, extraPaymentPool);
+                        const extraPayment = Math.min(remainingOwed, paymentBudget);
                         paymentsThisMonth[debt.id] += extraPayment;
-                        extraPaymentPool -= extraPayment;
+                        paymentBudget -= extraPayment;
                     }
                 }
-                
-                // Apply payments and record breakdown
+
+                // Step 3: Apply payments and record breakdown
                 const monthBreakdown = { month: months, payments: [], totalInterest: interestForMonth };
                 for (const debt of simulationDebts) {
                     const paymentApplied = paymentsThisMonth[debt.id] || 0;
@@ -286,18 +303,50 @@
             fullPlanDetails.forEach((row, index) => {
                 const tr = document.createElement('tr');
                 tr.dataset.index = index;
+                const isPaid = paidMonths.includes(row.month);
+                if(isPaid) {
+                    tr.classList.add('paid-row');
+                }
+
                 const actualPaymentThisMonth = row.payments.reduce((sum, p) => sum + p.paymentApplied, 0);
-                tr.innerHTML = `<td>${row.month}</td><td>$${actualPaymentThisMonth.toFixed(2)}</td><td>$${row.totalInterest.toFixed(2)}</td><td>$${row.remainingBalance.toFixed(2)}</td>`;
+                const buttonText = isPaid ? 'Unmark' : 'Mark Paid';
+                const buttonClass = isPaid ? 'toggle-paid-btn unmark' : 'toggle-paid-btn';
+
+                tr.innerHTML = `
+                    <td>${row.month}</td>
+                    <td>$${actualPaymentThisMonth.toFixed(2)}</td>
+                    <td>$${row.totalInterest.toFixed(2)}</td>
+                    <td>$${row.remainingBalance.toFixed(2)}</td>
+                    <td><button class="${buttonClass}" data-month="${row.month}">${buttonText}</button></td>
+                `;
                 planTbody.appendChild(tr);
             });
         }
 
         function handlePlanClick(event) {
+            if (event.target.classList.contains('toggle-paid-btn')) {
+                const month = parseInt(event.target.dataset.month);
+                toggleMonthPaid(month);
+                return;
+            }
+
             const row = event.target.closest('tr');
             if (!row) return;
             const monthIndex = parseInt(row.dataset.index);
             const monthData = fullPlanDetails[monthIndex];
             displayMonthDetails(monthData);
+        }
+
+        function toggleMonthPaid(month) {
+            const index = paidMonths.indexOf(month);
+            if (index > -1) {
+                paidMonths.splice(index, 1);
+            } else {
+                paidMonths.push(month);
+            }
+            localStorage.setItem('paidMonths', JSON.stringify(paidMonths));
+            const totalInterest = fullPlanDetails.reduce((sum, row) => sum + row.totalInterest, 0);
+            displayResults(fullPlanDetails.length, totalInterest);
         }
 
         function displayMonthDetails(monthData) {
