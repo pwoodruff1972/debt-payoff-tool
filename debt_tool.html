@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Debt Dashboard</title>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; background-color: #f4f7f6; margin: 2em; color: #333; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 2em; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+        h1, h2, h3 { color: #111; }
+        input[type="text"], input[type="number"] { width: 95%; padding: 10px; margin-bottom: 10px; border-radius: 4px; border: 1px solid #ccc; font-size: 16px; }
+        button { background-color: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #0056b3; }
+        ul { list-style-type: none; padding: 0; }
+        li { background: #e9ecef; padding: 15px; margin-bottom: 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .delete-btn { background-color: #dc3545; padding: 5px 10px; font-size: 12px; }
+        .delete-btn:hover { background-color: #c82333; }
+        .strategy-selector, .calculator { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 2em; border: 1px solid #dee2e6; }
+        .strategy-selector h3, .calculator h3 { margin-top: 0; }
+        .strategy-selector label { margin-right: 20px; cursor: pointer; font-weight: 500;}
+        .strategy-description { font-size: 14px; color: #666; padding-left: 22px; margin-bottom: 10px; margin-top: 2px; }
+        #results { margin-top: 2em; background-color: #e6f7ff; border: 1px solid #91d5ff; padding: 20px; border-radius: 8px; }
+        #results h3 { margin-top: 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1em; }
+        th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; }
+        th { background-color: #f2f2f2; }
+        #min-payment-guidance { display: block; margin-top: -5px; margin-bottom: 15px; font-size: 14px; color: #555; }
+        #plan-tbody tr:hover { background-color: #d1ecf1; cursor: pointer; }
+        #month-details { margin-top: 1.5em; padding: 15px; background-color: #fff; border: 1px solid #ccc; border-radius: 8px; }
+        #month-details ul { padding-left: 20px; list-style-type: disc; }
+        #month-details li { background: none; padding: 4px 0; margin-bottom: 0; display: list-item; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>My Debt Dashboard</h1>
+        
+        <h2>1. Add Your Debts</h2>
+        <form id="debt-form">
+            <input type="text" id="debt-name" placeholder="Debt Name (e.g., Visa)" required>
+            <input type="number" id="debt-balance" placeholder="Current Balance ($)" required step="0.01">
+            <input type="number" id="debt-apr" placeholder="Interest Rate (APR %)" required step="0.01">
+            <input type="number" id="debt-min-payment" placeholder="Minimum Monthly Payment ($)" required step="0.01">
+            <button type="submit">Add Debt</button>
+        </form>
+
+        <h2>2. Your Debts List</h2>
+        <ul id="debt-list"></ul>
+        
+        <h2>3. Create a Payoff Plan</h2>
+        <div class="strategy-selector">
+            <h3>Choose Strategy</h3>
+            <div>
+                <label><input type="radio" name="strategy" value="snowball" checked> Debt Snowball</label>
+                <div class="strategy-description">
+                    Focuses on paying off the smallest debts first to build momentum and score quick wins.
+                </div>
+            </div>
+            <div>
+                <label><input type="radio" name="strategy" value="avalanche"> Debt Avalanche</label>
+                <div class="strategy-description">
+                    Focuses on paying off the highest interest rate debts first to save the most money over time.
+                </div>
+            </div>
+        </div>
+
+        <div class="calculator">
+            <h3>Set Your Budget</h3>
+            <label for="total-payment">Total Monthly Payment ($)</label>
+            <input type="number" id="total-payment" placeholder="e.g., 1500">
+            <small id="min-payment-guidance"></small>
+            <button id="calculate-btn">Calculate Plan</button>
+        </div>
+
+        <div id="results" style="display: none;">
+            <h3>Your Payoff Plan <small>(Click a month for details, shown below)</small></h3>
+            <p id="results-summary"></p>
+            <table>
+                <thead>
+                    <tr><th>Month</th><th>Total Payment</th><th>Interest Paid</th><th>Remaining Balance</th></tr>
+                </thead>
+                <tbody id="plan-tbody"></tbody>
+            </table>
+            <div id="month-details" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- ELEMENT REFERENCES ---
+        const debtForm = document.getElementById('debt-form');
+        const debtList = document.getElementById('debt-list');
+        const strategyRadios = document.querySelectorAll('input[name="strategy"]');
+        const totalPaymentInput = document.getElementById('total-payment');
+        const calculateBtn = document.getElementById('calculate-btn');
+        const resultsDiv = document.getElementById('results');
+        const resultsSummary = document.getElementById('results-summary');
+        const planTbody = document.getElementById('plan-tbody');
+        const minPaymentGuidance = document.getElementById('min-payment-guidance');
+        const monthDetailsDiv = document.getElementById('month-details');
+
+        let debts = JSON.parse(localStorage.getItem('debts')) || [];
+        let fullPlanDetails = [];
+
+        // --- EVENT LISTENERS ---
+        debtForm.addEventListener('submit', addDebt);
+        debtList.addEventListener('click', handleListClick);
+        strategyRadios.forEach(radio => radio.addEventListener('change', renderDebts));
+        calculateBtn.addEventListener('click', calculatePlan);
+        planTbody.addEventListener('click', handlePlanClick);
+
+        // --- CORE FUNCTIONS ---
+        function addDebt(event) {
+            event.preventDefault();
+            const name = document.getElementById('debt-name').value;
+            const balance = parseFloat(document.getElementById('debt-balance').value);
+            const apr = parseFloat(document.getElementById('debt-apr').value);
+            const minPayment = parseFloat(document.getElementById('debt-min-payment').value);
+            if (balance <= 0 || apr < 0 || minPayment <= 0) { alert("Please enter valid positive numbers for balance, APR, and minimum payment."); return; }
+            const newDebt = { id: Date.now(), name, balance, apr, minPayment };
+            debts.push(newDebt);
+            saveAndRender();
+            debtForm.reset();
+        }
+
+        function handleListClick(event) {
+            if (event.target.classList.contains('delete-btn')) {
+                const idToDelete = parseInt(event.target.dataset.id);
+                debts = debts.filter(debt => debt.id !== idToDelete);
+                saveAndRender();
+            }
+        }
+
+        function calculatePlan() {
+            const totalMonthlyPayment = parseFloat(totalPaymentInput.value);
+            const totalMinimums = debts.reduce((sum, debt) => sum + debt.minPayment, 0);
+            if (debts.length === 0) { alert("Please add at least one debt."); return; }
+            if (isNaN(totalMonthlyPayment) || totalMonthlyPayment <= 0) { alert("Please enter a valid total monthly payment."); return; }
+            if (totalMonthlyPayment < totalMinimums) { alert(`Your total monthly payment must be at least $${totalMinimums.toFixed(2)} to cover your minimums.`); return; }
+            const selectedStrategy = document.querySelector('input[name="strategy"]:checked').value;
+            let simulationDebts = JSON.parse(JSON.stringify(debts));
+            if (selectedStrategy === 'snowball') { simulationDebts.sort((a, b) => a.balance - b.balance); } else { simulationDebts.sort((a, b) => b.apr - a.apr); }
+            let months = 0; let totalInterestPaid = 0; fullPlanDetails = []; let remainingDebts = true;
+            while (remainingDebts) {
+                months++;
+                let paymentForMonth = totalMonthlyPayment; let interestForMonth = 0; let snowball = 0;
+                const monthBreakdown = { month: months, payments: [] };
+                for (const debt of simulationDebts) {
+                    let paymentApplied = 0;
+                    if (debt.balance > 0) {
+                        let monthlyInterest = debt.balance * (debt.apr / 100 / 12); interestForMonth += monthlyInterest; debt.balance += monthlyInterest;
+                        let minPayment = Math.min(debt.balance, debt.minPayment); debt.balance -= minPayment; paymentForMonth -= minPayment; paymentApplied += minPayment;
+                    } else { snowball += debt.minPayment; }
+                    monthBreakdown.payments.push({ name: debt.name, paymentApplied: paymentApplied, newBalance: debt.balance });
+                }
+                totalInterestPaid += interestForMonth;
+                let extraPayment = paymentForMonth + snowball;
+                for (let i = 0; i < simulationDebts.length; i++) {
+                    const debt = simulationDebts[i];
+                    if (debt.balance > 0 && extraPayment > 0) {
+                        let payment = Math.min(debt.balance, extraPayment); debt.balance -= payment; extraPayment -= payment;
+                        monthBreakdown.payments[i].paymentApplied += payment; monthBreakdown.payments[i].newBalance = debt.balance;
+                    }
+                }
+                const totalRemainingBalance = simulationDebts.reduce((sum, d) => sum + d.balance, 0);
+                monthBreakdown.totalInterest = interestForMonth; monthBreakdown.remainingBalance = totalRemainingBalance;
+                fullPlanDetails.push(monthBreakdown);
+                if (totalRemainingBalance <= 0) { remainingDebts = false; }
+                if (months > 1200) { break; }
+            }
+            displayResults(months, totalInterestPaid);
+        }
+        
+        function displayResults(months, totalInterestPaid) {
+            resultsDiv.style.display = 'block';
+            monthDetailsDiv.style.display = 'none';
+            const years = Math.floor(months / 12); const remainingMonths = months % 12;
+            resultsSummary.textContent = `You will be debt-free in ${years} years and ${remainingMonths} months! Total interest paid: $${totalInterestPaid.toFixed(2)}.`;
+            planTbody.innerHTML = '';
+            fullPlanDetails.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.dataset.index = index;
+                tr.innerHTML = `<td>${row.month}</td><td>$${totalPaymentInput.value}</td><td>$${row.totalInterest.toFixed(2)}</td><td>$${row.remainingBalance.toFixed(2)}</td>`;
+                planTbody.appendChild(tr);
+            });
+        }
+
+        function handlePlanClick(event) {
+            const row = event.target.closest('tr');
+            if (!row) return;
+            const monthIndex = parseInt(row.dataset.index);
+            const monthData = fullPlanDetails[monthIndex];
+            displayMonthDetails(monthData);
+        }
+
+        function displayMonthDetails(monthData) {
+            monthDetailsDiv.style.display = 'block';
+            let detailsHtml = `<h4>Details for Month ${monthData.month}</h4><ul>`;
+            monthData.payments.forEach(p => {
+                if (p.paymentApplied > 0.005) {
+                    detailsHtml += `<li><strong>${p.name}:</strong> Pay $${p.paymentApplied.toFixed(2)} (New Balance: $${p.newBalance.toFixed(2)})</li>`;
+                }
+            });
+            detailsHtml += `</ul>`;
+            monthDetailsDiv.innerHTML = detailsHtml;
+            monthDetailsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function saveAndRender() { saveDebts(); renderDebts(); updateGuidance(); }
+        
+        function renderDebts() {
+            debtList.innerHTML = '';
+            debts.forEach(debt => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `<div><strong>${debt.name}</strong><br><small>$${debt.balance.toFixed(2)} @ ${debt.apr}% APR (Min: $${debt.minPayment.toFixed(2)})</small></div><button class="delete-btn" data-id="${debt.id}">Delete</button>`;
+                debtList.appendChild(listItem);
+            });
+        }
+
+        function saveDebts() { localStorage.setItem('debts', JSON.stringify(debts)); }
+        
+        function updateGuidance() {
+            const totalMinimums = debts.reduce((sum, debt) => sum + debt.minPayment, 0);
+            if (totalMinimums > 0) { minPaymentGuidance.textContent = `Your total minimum payment is $${totalMinimums.toFixed(2)}. Pay more to get out of debt faster!`; } else { minPaymentGuidance.textContent = 'Enter your debts to see your minimum monthly payment.'; }
+        }
+
+        // --- INITIALIZATION ---
+        saveAndRender();
+    </script>
+</body>
+</html>
