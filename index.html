@@ -14,14 +14,32 @@
         }
         .navbar {
             background-color: #fff;
-            padding: 1.2rem 2rem;
+            padding: 1rem 2rem;
             font-weight: 600;
-            text-align: center;
-            font-size: 1.25rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             position: sticky;
             top: 0;
             z-index: 1000;
+        }
+        .nav-title {
+            font-size: 1.25rem;
+        }
+        .nav-button {
+            background-color: #007bff;
+            color: white;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+            margin-left: auto;
+        }
+        .nav-button:hover {
+            background-color: #0056b3;
         }
         .container {
             max-width: 960px;
@@ -129,40 +147,23 @@
             font-weight: 600;
             color: #007bff;
         }
-
-        /* --- Mobile Responsive Styles --- */
         @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.2rem;
-            }
-            .hero p {
-                font-size: 1.1rem;
-            }
-            .features {
-                flex-direction: column;
-                gap: 2.5rem;
-                margin-top: 3rem;
-            }
-            .container {
-                padding: 1.5rem 1rem;
-            }
-            .hero {
-                padding: 2rem 0.5rem;
-            }
-            .cta-button {
-                padding: 0.8rem 1.5rem;
-                font-size: 1.1rem;
-            }
-            .resource-grid {
-                grid-template-columns: 1fr;
-            }
+            .hero h1 { font-size: 2.2rem; }
+            .hero p { font-size: 1.1rem; }
+            .features { flex-direction: column; gap: 2.5rem; margin-top: 3rem; }
+            .container { padding: 1.5rem 1rem; }
+            .hero { padding: 2rem 0.5rem; }
+            .cta-button { padding: 0.8rem 1.5rem; font-size: 1.1rem; }
+            .resource-grid { grid-template-columns: 1fr; }
+            .nav-title { display: none; }
         }
     </style>
 </head>
 <body>
 
     <nav class="navbar">
-        Debt Payoff Planner
+        <span class="nav-title">Debt Payoff Planner</span>
+        <a href="https://woodruffian2.gumroad.com/l/debt-payoff-planner-pro" class="nav-button" target="_blank">Go Pro</a>
     </nav>
 
     <div class="container">
