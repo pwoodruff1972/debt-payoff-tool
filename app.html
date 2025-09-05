@@ -140,6 +140,7 @@
     </div>
 
     <script>
+    window.addEventListener('DOMContentLoaded', (event) => {
         // --- ELEMENT REFERENCES ---
         const debtForm = document.getElementById('debt-form');
         const debtList = document.getElementById('debt-list');
@@ -175,17 +176,16 @@
         function isPro() {
             const key = localStorage.getItem('debtToolProKey');
             if (!key) return false;
-            if (key === PRO_KEY) return true; // Master key never expires
+            if (key === PRO_KEY) return true;
 
             const unlockDate = localStorage.getItem('proUnlockDate');
             if (!unlockDate) {
-                // If there's a key but no date (from an old version), generously set the date to now.
                 localStorage.setItem('proUnlockDate', Date.now());
                 return true;
             }
 
             const daysSinceUnlock = (Date.now() - parseInt(unlockDate, 10)) / (1000 * 60 * 60 * 24);
-            return daysSinceUnlock < 366; // Generous 1-year license (accounts for leap years)
+            return daysSinceUnlock < 366;
         }
         
         function unlockPro() { 
@@ -193,7 +193,7 @@
             const gumroadKeyRegex = /^[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}$/i;
             if (key === PRO_KEY || gumroadKeyRegex.test(key)) {
                 localStorage.setItem('debtToolProKey', key);
-                localStorage.setItem('proUnlockDate', Date.now()); // Set the unlock date!
+                localStorage.setItem('proUnlockDate', Date.now());
                 alert("Success! Pro features unlocked for one year.");
                 updateUIForProStatus();
             } else {
@@ -215,7 +215,6 @@
                 avalancheRadio.disabled = true; 
                 avalancheLabel.classList.add('disabled-label'); 
                 dashboardContainer.style.display = 'block';
-                // Check for expired key and update message
                 if (keyExists) {
                     upgradeCard.querySelector('h3').textContent = "Your Pro License Has Expired";
                     upgradeMessage.textContent = "Please purchase a new license to continue using Pro features.";
@@ -260,6 +259,7 @@
         
         // --- INITIALIZATION ---
         saveAndRender();
+    });
     </script>
 </body>
 </html>
