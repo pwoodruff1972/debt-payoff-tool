@@ -44,12 +44,14 @@
         #upgrade-card h3 { color: #007bff; }
         .pro-label { font-size: 0.8em; background-color: #007bff; color: white; padding: 2px 5px; border-radius: 3px; margin-left: 5px; }
         .disabled-label { color: #999; cursor: not-allowed; }
-        #license-key-input { width: calc(100% - 130px); margin-right: 10px; display: inline-block; }
+        #license-key-input { width: calc(100% - 250px); margin-right: 10px; display: inline-block; }
         #unlock-btn { width: 110px; display: inline-block; }
+        .buy-button { background-color: #28a745; display: inline-block; text-align: center; text-decoration: none; color: white !important; padding: 10px 15px; border-radius: 4px; font-size: 16px; margin-left: 10px;}
+        .buy-button:hover { background-color: #218838; }
         #dashboard-card { display: none; }
         .chart-container { width: 100%; margin-bottom: 2rem; }
         .charts-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; align-items: center; }
-        @media (max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } #license-key-input { width: 100%; margin-bottom: 10px; } #unlock-btn, .buy-button { width: 100%; margin-left: 0; } }
     </style>
 </head>
 <body>
@@ -72,6 +74,7 @@
             <div>
                 <input type="text" id="license-key-input" placeholder="Enter License Key">
                 <button id="unlock-btn">Unlock</button>
+                <a href="https://woodruffian2.gumroad.com/l/debt-payoff-planner-pro" class="buy-button" target="_blank">Buy Pro</a>
             </div>
         </div>
 
@@ -167,8 +170,18 @@
 
         // --- FREEMIUM LOGIC ---
         const PRO_KEY = "PRO-2025";
-        function isPro() { return localStorage.getItem('debtToolProKey') === PRO_KEY; }
-        function unlockPro() { const key = licenseKeyInput.value.trim(); if (key === PRO_KEY) { localStorage.setItem('debtToolProKey', key); alert("Success! Pro features unlocked."); updateUIForProStatus(); } else { alert("Invalid license key."); } }
+        function isPro() { return localStorage.getItem('debtToolProKey'); }
+        function unlockPro() { 
+            const key = licenseKeyInput.value.trim();
+            const gumroadKeyRegex = /^[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}$/i;
+            if (key === PRO_KEY || gumroadKeyRegex.test(key)) {
+                localStorage.setItem('debtToolProKey', key);
+                alert("Success! Pro features unlocked.");
+                updateUIForProStatus();
+            } else {
+                alert("Invalid license key. Please check the key from your receipt email and try again.");
+            }
+        }
         function updateUIForProStatus() { if (isPro()) { upgradeCard.style.display = 'none'; avalancheRadio.disabled = false; avalancheLabel.classList.remove('disabled-label'); dashboardContainer.style.display = 'block'; } else { upgradeCard.style.display = 'block'; avalancheRadio.disabled = true; avalancheLabel.classList.add('disabled-label'); dashboardContainer.style.display = 'block'; } renderCharts(); }
 
         // --- EVENT LISTENERS ---
@@ -181,7 +194,7 @@
         importBtn.addEventListener('click', () => importFileInput.click());
         importFileInput.addEventListener('change', importData);
         unlockBtn.addEventListener('click', unlockPro);
-        avalancheLabel.addEventListener('click', (event) => { if (!isPro()) { event.preventDefault(); alert("The Debt Avalanche strategy is a Pro feature."); } });
+        avalancheLabel.addEventListener('click', (event) => { if (!isPro()) { event.preventDefault(); alert("The Debt Avalanche strategy is a Pro feature. Please upgrade."); } });
 
         // --- DATA FUNCTIONS ---
         function exportData() { if (debts.length === 0) { alert("There is no data to export."); return; } const dataToExport = { debts: debts, paidMonths: paidMonths, budget: totalPaymentInput.value }; const dataStr = JSON.stringify(dataToExport, null, 2); const dataBlob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(dataBlob); const link = document.createElement('a'); link.href = url; link.download = `my-debt-plan-${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); }
