@@ -65,7 +65,7 @@
         
         <div id="upgrade-card" class="card">
             <h3>Upgrade to Pro</h3>
-            <p style="font-size: 14px; color: #555; margin-top: 0;">Unlock powerful features to accelerate your debt-free journey:</p>
+            <p id="upgrade-message" style="font-size: 14px; color: #555; margin-top: 0;">Unlock powerful features to accelerate your debt-free journey:</p>
             <ul>
                 <li>✅ Add Unlimited Debts</li>
                 <li>✅ Use the Debt Avalanche strategy to save more on interest</li>
@@ -161,6 +161,7 @@
         const avalancheLabel = document.getElementById('avalanche-label');
         const dashboardContainer = document.getElementById('dashboard-container');
         const dashboardCard = document.getElementById('dashboard-card');
+        const upgradeMessage = document.getElementById('upgrade-message');
 
         let debts = JSON.parse(localStorage.getItem('debts')) || [];
         let fullPlanDetails = [];
@@ -170,19 +171,58 @@
 
         // --- FREEMIUM LOGIC ---
         const PRO_KEY = "PRO-2025";
-        function isPro() { return localStorage.getItem('debtToolProKey'); }
+        
+        function isPro() {
+            const key = localStorage.getItem('debtToolProKey');
+            if (!key) return false;
+            if (key === PRO_KEY) return true; // Master key never expires
+
+            const unlockDate = localStorage.getItem('proUnlockDate');
+            if (!unlockDate) {
+                // If there's a key but no date (from an old version), generously set the date to now.
+                localStorage.setItem('proUnlockDate', Date.now());
+                return true;
+            }
+
+            const daysSinceUnlock = (Date.now() - parseInt(unlockDate, 10)) / (1000 * 60 * 60 * 24);
+            return daysSinceUnlock < 366; // Generous 1-year license (accounts for leap years)
+        }
+        
         function unlockPro() { 
             const key = licenseKeyInput.value.trim();
             const gumroadKeyRegex = /^[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}$/i;
             if (key === PRO_KEY || gumroadKeyRegex.test(key)) {
                 localStorage.setItem('debtToolProKey', key);
-                alert("Success! Pro features unlocked.");
+                localStorage.setItem('proUnlockDate', Date.now()); // Set the unlock date!
+                alert("Success! Pro features unlocked for one year.");
                 updateUIForProStatus();
             } else {
                 alert("Invalid license key. Please check the key from your receipt email and try again.");
             }
         }
-        function updateUIForProStatus() { if (isPro()) { upgradeCard.style.display = 'none'; avalancheRadio.disabled = false; avalancheLabel.classList.remove('disabled-label'); dashboardContainer.style.display = 'block'; } else { upgradeCard.style.display = 'block'; avalancheRadio.disabled = true; avalancheLabel.classList.add('disabled-label'); dashboardContainer.style.display = 'block'; } renderCharts(); }
+        
+        function updateUIForProStatus() { 
+            const proStatus = isPro();
+            const keyExists = !!localStorage.getItem('debtToolProKey');
+
+            if (proStatus) { 
+                upgradeCard.style.display = 'none'; 
+                avalancheRadio.disabled = false; 
+                avalancheLabel.classList.remove('disabled-label'); 
+                dashboardContainer.style.display = 'block'; 
+            } else { 
+                upgradeCard.style.display = 'block'; 
+                avalancheRadio.disabled = true; 
+                avalancheLabel.classList.add('disabled-label'); 
+                dashboardContainer.style.display = 'block';
+                // Check for expired key and update message
+                if (keyExists) {
+                    upgradeCard.querySelector('h3').textContent = "Your Pro License Has Expired";
+                    upgradeMessage.textContent = "Please purchase a new license to continue using Pro features.";
+                }
+            } 
+            renderCharts(); 
+        }
 
         // --- EVENT LISTENERS ---
         debtForm.addEventListener('submit', addDebt);
@@ -197,8 +237,8 @@
         avalancheLabel.addEventListener('click', (event) => { if (!isPro()) { event.preventDefault(); alert("The Debt Avalanche strategy is a Pro feature. Please upgrade."); } });
 
         // --- DATA FUNCTIONS ---
-        function exportData() { if (debts.length === 0) { alert("There is no data to export."); return; } const dataToExport = { debts: debts, paidMonths: paidMonths, budget: totalPaymentInput.value }; const dataStr = JSON.stringify(dataToExport, null, 2); const dataBlob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(dataBlob); const link = document.createElement('a'); link.href = url; link.download = `my-debt-plan-${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); }
-        function importData(event) { const file = event.target.files[0]; if (!file) { return; } const reader = new FileReader(); reader.onload = function(e) { try { const importedData = JSON.parse(e.target.result); if (Array.isArray(importedData)) { debts = importedData; paidMonths = []; totalPaymentInput.value = ''; alert("Old data format imported successfully! Please set your budget and calculate a new plan."); } else if (importedData && Array.isArray(importedData.debts)) { debts = importedData.debts; paidMonths = importedData.paidMonths || []; totalPaymentInput.value = importedData.budget || ''; alert("Data imported successfully! Click 'Calculate Plan' to see your new schedule."); } else { throw new Error("Invalid file format."); } saveAndRender(); } catch (error) { alert("Error reading file."); } }; reader.onerror = function() { alert("Failed to read the file."); }; reader.readAsText(file); importFileInput.value = ''; }
+        function exportData() { if (debts.length === 0) { alert("There is no data to export."); return; } const dataToExport = { debts: debts, paidMonths: paidMonths, budget: totalPaymentInput.value, proKey: localStorage.getItem('debtToolProKey'), proUnlockDate: localStorage.getItem('proUnlockDate') }; const dataStr = JSON.stringify(dataToExport, null, 2); const dataBlob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(dataBlob); const link = document.createElement('a'); link.href = url; link.download = `my-debt-plan-${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); }
+        function importData(event) { const file = event.target.files[0]; if (!file) { return; } const reader = new FileReader(); reader.onload = function(e) { try { const importedData = JSON.parse(e.target.result); if (Array.isArray(importedData)) { debts = importedData; paidMonths = []; totalPaymentInput.value = ''; localStorage.removeItem('debtToolProKey'); localStorage.removeItem('proUnlockDate'); alert("Old data format imported successfully! Please set your budget and calculate a new plan."); } else if (importedData && Array.isArray(importedData.debts)) { debts = importedData.debts; paidMonths = importedData.paidMonths || []; totalPaymentInput.value = importedData.budget || ''; if(importedData.proKey && importedData.proUnlockDate){ localStorage.setItem('debtToolProKey', importedData.proKey); localStorage.setItem('proUnlockDate', importedData.proUnlockDate); } else { localStorage.removeItem('debtToolProKey'); localStorage.removeItem('proUnlockDate'); } alert("Data imported successfully! Click 'Calculate Plan' to see your new schedule."); } else { throw new Error("Invalid file format."); } saveAndRender(); } catch (error) { alert("Error reading file."); } }; reader.onerror = function() { alert("Failed to read the file."); }; reader.readAsText(file); importFileInput.value = ''; }
         function addDebt(event) { event.preventDefault(); if (!isPro() && debts.length >= 5) { alert("The free plan is limited to 5 debts. Please upgrade to Pro for unlimited debts."); return; } const name = document.getElementById('debt-name').value; const balance = parseFloat(document.getElementById('debt-balance').value); const apr = parseFloat(document.getElementById('debt-apr').value); const minPayment = parseFloat(document.getElementById('debt-min-payment').value); if (!name || isNaN(balance) || isNaN(apr) || isNaN(minPayment) || balance <= 0 || apr < 0 || minPayment <= 0) { alert("Please enter valid positive numbers for all fields."); return; } if (debts.some(debt => debt.name.trim().toLowerCase() === name.trim().toLowerCase())) { alert("A debt with this name already exists. Please use a unique name."); return; } const newDebt = { id: Date.now(), name, balance, apr, minPayment }; debts.push(newDebt); resetPlanAndProgress(); saveAndRender(); debtForm.reset(); }
         function handleListClick(event) { if (event.target.classList.contains('delete-btn')) { const idToDelete = parseInt(event.target.dataset.id); debts = debts.filter(debt => debt.id !== idToDelete); resetPlanAndProgress(); saveAndRender(); } }
         function resetPlanAndProgress() { paidMonths = []; localStorage.removeItem('paidMonths'); resultsDiv.style.display = 'none'; if (lineChartInstance) { lineChartInstance.destroy(); lineChartInstance = null; } renderCharts(); }
