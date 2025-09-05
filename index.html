@@ -14,9 +14,14 @@
         }
         .navbar {
             background-color: #fff;
-            padding: 1rem 2rem;
-            border-bottom: 1px solid #e9ecef;
+            padding: 1.2rem 2rem;
             font-weight: 600;
+            text-align: center;
+            font-size: 1.25rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
         .container {
             max-width: 960px;
@@ -46,10 +51,15 @@
             font-weight: 600;
             border-radius: 8px;
             transition: background-color 0.2s;
-            display: inline-block; /* Helps with spacing */
+            display: inline-block;
         }
         .cta-button:hover {
             background-color: #0056b3;
+        }
+        .cta-subtitle {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 0.5rem;
         }
         .features {
             display: flex;
@@ -62,6 +72,12 @@
             flex: 1;
             text-align: center;
         }
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 1rem;
+            color: #007bff;
+        }
         .feature-item h3 {
             font-size: 1.5rem;
         }
@@ -72,22 +88,63 @@
             color: #888;
             font-size: 0.9rem;
         }
+        .footer-links {
+            margin-top: 0.5rem;
+        }
+        .footer-links a {
+            color: #6c757d;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        .resources {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e9ecef;
+        }
+        .resources h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+        }
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        .resource-item {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+        .resource-item h4 {
+            margin-top: 0;
+            font-size: 1.2rem;
+        }
+        .resource-item a {
+            text-decoration: none;
+            font-weight: 600;
+            color: #007bff;
+        }
 
-        /* --- NEW: Mobile Responsive Styles --- */
+        /* --- Mobile Responsive Styles --- */
         @media (max-width: 768px) {
             .hero h1 {
-                font-size: 2.2rem; /* Make heading smaller */
+                font-size: 2.2rem;
             }
             .hero p {
-                font-size: 1.1rem; /* Make subtitle smaller */
+                font-size: 1.1rem;
             }
             .features {
-                flex-direction: column; /* Stack features vertically */
+                flex-direction: column;
                 gap: 2.5rem;
                 margin-top: 3rem;
             }
             .container {
-                padding: 1.5rem 1rem; /* Adjust padding for smaller screens */
+                padding: 1.5rem 1rem;
             }
             .hero {
                 padding: 2rem 0.5rem;
@@ -95,6 +152,9 @@
             .cta-button {
                 padding: 0.8rem 1.5rem;
                 font-size: 1.1rem;
+            }
+            .resource-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -108,29 +168,61 @@
     <div class="container">
         <section class="hero">
             <h1>Take Control of Your Debt</h1>
-            <p>A simple, 100% private planner to help you visualize your path to zero debt using the Snowball or Avalanche method.</p>
+            <p>A simple, 100% private planner to help you visualize your path to zero debt using the popular Debt Snowball method.</p>
             <a href="app.html" class="cta-button">Launch the Free Tool</a>
+            <p class="cta-subtitle">No signup required. 100% free for up to 5 debts.</p>
         </section>
 
         <section class="features">
             <div class="feature-item">
+                <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
                 <h3>Completely Private</h3>
                 <p>Your financial data is never sent to a server. It stays securely in your browser, on your computer.</p>
             </div>
             <div class="feature-item">
+                <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
                 <h3>Proven Strategies</h3>
-                <p>Choose between the Debt Snowball for quick wins or the Debt Avalanche to save the most on interest.</p>
+                <p>Use the popular Debt Snowball method for free, or upgrade to Pro to unlock the Debt Avalanche and other powerful features.</p>
             </div>
             <div class="feature-item">
+                <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
                 <h3>You're In Control</h3>
                 <p>Export your debt plan to a file for backup. Import it on any device. You own your data.</p>
+            </div>
+        </section>
+
+        <section class="resources">
+            <h2>Recommended Resources</h2>
+            <div class="resource-grid">
+                <div class="resource-item">
+                    <h4>High-Yield Savings Accounts</h4>
+                    <p>As you pay off debt, it's crucial to build an emergency fund. A high-yield savings account (HYSA) offers a much higher interest rate than a traditional account, helping your money grow faster.</p>
+                    <a href="#" target="_blank">See Our Top Picks &rarr;</a>
+                </div>
+                <div class="resource-item">
+                    <h4>Balance Transfer Credit Cards</h4>
+                    <p>Have high-interest credit card debt? A balance transfer card with a 0% introductory APR can save you hundreds or thousands in interest, allowing more of your payment to go directly to the principal.</p>
+                    <a href="#" target="_blank">Compare Balance Transfer Cards &rarr;</a>
+                </div>
             </div>
         </section>
     </div>
 
     <footer class="footer">
-        &copy; 2025 Debt Payoff Planner
+        <div>&copy; 2025 Debt Payoff Planner</div>
+        <div class="footer-links">
+            <a href="mailto:support@example.com">Contact</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+        </div>
     </footer>
 
 </body>
 </html>
+
