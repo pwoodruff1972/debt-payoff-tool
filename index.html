@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Debt Payoff Planner - A Free & Private Tool</title>
+    <!-- SEO Optimized Title -->
+    <title>Debt Payoff Planner | Free Debt Snowball Calculator</title>
+    <!-- SEO Meta Description -->
+    <meta name="description" content="Use our free and 100% private debt payoff calculator. See how the Debt Snowball method can help you get out of debt faster. No signup required.">
     <style>
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -14,32 +17,14 @@
         }
         .navbar {
             background-color: #fff;
-            padding: 1rem 2rem;
+            padding: 1.2rem 2rem;
             font-weight: 600;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            text-align: center;
+            font-size: 1.25rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             position: sticky;
             top: 0;
             z-index: 1000;
-        }
-        .nav-title {
-            font-size: 1.25rem;
-        }
-        .nav-button {
-            background-color: #007bff;
-            color: white;
-            padding: 0.5rem 1rem;
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 600;
-            border-radius: 6px;
-            transition: background-color 0.2s;
-            margin-left: auto;
-        }
-        .nav-button:hover {
-            background-color: #0056b3;
         }
         .container {
             max-width: 960px;
@@ -147,23 +132,44 @@
             font-weight: 600;
             color: #007bff;
         }
+
+        /* --- Mobile Responsive Styles --- */
         @media (max-width: 768px) {
-            .hero h1 { font-size: 2.2rem; }
-            .hero p { font-size: 1.1rem; }
-            .features { flex-direction: column; gap: 2.5rem; margin-top: 3rem; }
-            .container { padding: 1.5rem 1rem; }
-            .hero { padding: 2rem 0.5rem; }
-            .cta-button { padding: 0.8rem 1.5rem; font-size: 1.1rem; }
-            .resource-grid { grid-template-columns: 1fr; }
-            .nav-title { display: none; }
+            .navbar {
+                padding: 1rem;
+                font-size: 1.1rem;
+            }
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            .hero p {
+                font-size: 1.1rem;
+            }
+            .features {
+                flex-direction: column;
+                gap: 2.5rem;
+                margin-top: 3rem;
+            }
+            .container {
+                padding: 1.5rem 1rem;
+            }
+            .hero {
+                padding: 2rem 0.5rem;
+            }
+            .cta-button {
+                padding: 0.8rem 1.5rem;
+                font-size: 1.1rem;
+            }
+            .resource-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
 
     <nav class="navbar">
-        <span class="nav-title">Debt Payoff Planner</span>
-        <a href="https://woodruffian2.gumroad.com/l/debt-payoff-planner-pro" class="nav-button" target="_blank">Go Pro</a>
+        Debt Payoff Planner
     </nav>
 
     <div class="container">
@@ -171,7 +177,7 @@
             <h1>Take Control of Your Debt</h1>
             <p>A simple, 100% private planner to help you visualize your path to zero debt using the popular Debt Snowball method.</p>
             <a href="app.html" class="cta-button">Launch the Free Tool</a>
-            <p class="cta-subtitle">No signup required. 100% free for up to 5 debts.</p>
+            <p class="cta-subtitle">No signup required. 100% free (up to 5 debts).</p>
         </section>
 
         <section class="features">
