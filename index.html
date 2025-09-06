@@ -17,14 +17,24 @@
         }
         .navbar {
             background-color: #fff;
-            padding: 1.2rem 2rem;
-            font-weight: 600;
-            text-align: center;
-            font-size: 1.25rem;
+            padding: 1rem 2rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             position: sticky;
             top: 0;
             z-index: 1000;
+            display: flex;
+            justify-content: center;
+        }
+        .nav-container {
+            width: 100%;
+            max-width: 960px;
+            display: flex;
+            justify-content: center; /* Changed to center */
+            align-items: center;
+        }
+        .nav-brand img {
+            height: 30px;
+            vertical-align: middle;
         }
         .container {
             max-width: 960px;
@@ -178,7 +188,11 @@
 <body>
 
     <nav class="navbar">
-        Debt Payoff Planner
+        <div class="nav-container">
+            <a href="index.html" class="nav-brand">
+                <img src="logo.svg" alt="Debt Payoff Planner Logo">
+            </a>
+        </div>
     </nav>
 
     <div class="container">
@@ -213,7 +227,6 @@
             </div>
         </section>
 
-        <!-- NEW SECTION for Guide Link -->
         <section class="learn-more">
             <h2>Learn the Strategies</h2>
             <div class="learn-more-content">
