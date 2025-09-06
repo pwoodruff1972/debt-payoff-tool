@@ -24,17 +24,7 @@
             z-index: 1000;
             display: flex;
             justify-content: center;
-        }
-        .nav-container {
-            width: 100%;
-            max-width: 960px;
-            display: flex;
-            justify-content: center; /* Changed to center */
             align-items: center;
-        }
-        .nav-brand img {
-            height: 30px;
-            vertical-align: middle;
         }
         .container {
             max-width: 960px;
@@ -142,18 +132,12 @@
             font-weight: 600;
             color: #007bff;
         }
-        .learn-more-content {
-            text-align: center;
+        .learn-more-box {
             background-color: #fff;
-            padding: 2rem;
-            border-radius: 8px;
             border: 1px solid #dee2e6;
-        }
-        .learn-more-content p {
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
         }
 
         /* --- Mobile Responsive Styles --- */
@@ -188,11 +172,7 @@
 <body>
 
     <nav class="navbar">
-        <div class="nav-container">
-            <a href="index.html" class="nav-brand">
-                <img src="logo.svg" alt="Debt Payoff Planner Logo">
-            </a>
-        </div>
+        <img src="logo.svg" alt="Debt Payoff Planner Logo" style="height: 40px;">
     </nav>
 
     <div class="container">
@@ -209,7 +189,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
                 <h3>Completely Private</h3>
-                <p>Your financial data is never sent to a server. It stays securely in your browser, on your computer.</p>
+                <p>Unlike mobile apps that require an account, our tool is 100% anonymous. Your financial data is never sent to a server and always stays securely on your computer.</p>
             </div>
             <div class="feature-item">
                 <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -229,9 +209,10 @@
 
         <section class="learn-more">
             <h2>Learn the Strategies</h2>
-            <div class="learn-more-content">
-                <p>Not sure which payoff method is right for you? Our detailed guide breaks down the Debt Snowball and Debt Avalanche methods, helping you make the best choice for your financial situation.</p>
-                <a href="guide.html" class="cta-button">Read Our Free Guide</a>
+            <div class="learn-more-box">
+                <h4>Debt Snowball vs. Debt Avalanche</h4>
+                <p>Not sure which payoff method is right for you? Our detailed guide breaks down the pros and cons of each strategy to help you make the best decision for your financial situation.</p>
+                <a href="guide.html" class="cta-button" style="background-color: #6c757d;">Read the Guide</a>
             </div>
         </section>
 
