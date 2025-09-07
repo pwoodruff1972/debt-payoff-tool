@@ -181,14 +181,51 @@
 
         // --- FREEMIUM LOGIC ---
         const PRO_KEY = "PRO-2025";
-        function isPro() { const key = localStorage.getItem('debtToolProKey'); if (!key) return false; if (key === PRO_KEY) return true; const gumroadKeyRegex = /^[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}$/i; if (!gumroadKeyRegex.test(key)) return false; const unlockDate = localStorage.getItem('proUnlockDate'); if (!unlockDate) { localStorage.setItem('proUnlockDate', Date.now()); return true; } const daysSinceUnlock = (Date.now() - parseInt(unlockDate, 10)) / (1000 * 60 * 60 * 24); return daysSinceUnlock < 366; }
-        function unlockPro() { const key = licenseKeyInput.value.trim(); const gumroadKeyRegex = /^[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}$/i; if (key === PRO_KEY || gumroadKeyRegex.test(key)) { localStorage.setItem('debtToolProKey', key); localStorage.setItem('proUnlockDate', Date.now()); alert("Success! Pro features unlocked for one year."); updateUIForProStatus(); } else { alert("Invalid license key."); } }
+        const FRIEND_KEY = "FRIEND-OF-PATRICK";
+        
+        function isPro() {
+            const key = localStorage.getItem('debtToolProKey');
+            if (!key) return false;
+            if (key === PRO_KEY || key === FRIEND_KEY) return true;
+
+            const gumroadKeyRegex = /^[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}$/i;
+            if (!gumroadKeyRegex.test(key)) return false;
+
+            const unlockDate = localStorage.getItem('proUnlockDate');
+            if (!unlockDate) {
+                localStorage.setItem('proUnlockDate', Date.now());
+                return true;
+            }
+
+            const daysSinceUnlock = (Date.now() - parseInt(unlockDate, 10)) / (1000 * 60 * 60 * 24);
+            return daysSinceUnlock < 366;
+        }
+        
+        function unlockPro() { 
+            const key = licenseKeyInput.value.trim();
+            const gumroadKeyRegex = /^[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}$/i;
+
+            if (key === PRO_KEY || key === FRIEND_KEY) {
+                localStorage.setItem('debtToolProKey', key);
+                localStorage.removeItem('proUnlockDate');
+                alert("Success! Permanent Pro access unlocked.");
+                updateUIForProStatus();
+            } else if (gumroadKeyRegex.test(key)) {
+                localStorage.setItem('debtToolProKey', key);
+                localStorage.setItem('proUnlockDate', Date.now());
+                alert("Success! Pro features unlocked for one year.");
+                updateUIForProStatus();
+            } else {
+                alert("Invalid license key. Please check the key and try again.");
+            }
+        }
+        
         function updateUIForProStatus() { 
             const proStatus = isPro(); 
             const keyExists = !!localStorage.getItem('debtToolProKey');
             
             avalancheRadio.disabled = false;
-            avalancheLabel.classList.remove('disabled-label', !proStatus);
+            avalancheLabel.classList.remove('disabled-label');
             paidOffInstruction.style.display = proStatus ? 'inline' : 'none';
 
             if (proStatus) { 
@@ -225,7 +262,9 @@
         function handleListClick(event) { const target = event.target; const listItem = target.closest('li'); if (!listItem) return; const id = parseInt(listItem.dataset.id); if (target.classList.contains('delete-btn')) { debts = debts.filter(debt => debt.id !== id); resetPlanAndProgress(); saveAndRender(); } if (target.classList.contains('mark-paid-btn')) { if (!isPro()) { alert("Marking debts as paid is a Pro feature. Please upgrade."); return; } toggleDebtPaid(id); } }
         function resetPlanAndProgress() { paidMonths = []; paidDebtIds = []; paidProgress = {}; localStorage.removeItem('paidMonths'); localStorage.removeItem('paidDebtIds'); localStorage.removeItem('paidProgress'); resultsDiv.style.display = 'none'; if (lineChartInstance) { lineChartInstance.destroy(); lineChartInstance = null; } renderCharts(); }
         function toggleDebtPaid(debtId) { const index = paidDebtIds.indexOf(debtId); if (index > -1) { paidDebtIds.splice(index, 1); } else { paidDebtIds.push(debtId); } localStorage.setItem('paidDebtIds', JSON.stringify(paidDebtIds)); saveAndRender(); }
+        
         function calculatePlan() { const totalMonthlyPayment = parseFloat(totalPaymentInput.value); const totalMinimums = debts.reduce((sum, debt) => sum + debt.minPayment, 0); if (debts.length === 0) { alert("Please add at least one debt."); return; } if (isNaN(totalMonthlyPayment) || totalMonthlyPayment <= 0) { alert("Please enter a valid total monthly payment."); return; } if (totalMonthlyPayment < totalMinimums) { alert(`Your total monthly payment must be at least $${totalMinimums.toFixed(2)} to cover your minimums.`); return; } localStorage.setItem('monthlyBudget', totalMonthlyPayment); let simulationDebts = JSON.parse(JSON.stringify(debts)); simulationDebts.forEach(d => { if(paidDebtIds.includes(d.id)) d.balance = 0; }); const selectedStrategy = document.querySelector('input[name="strategy"]:checked').value; let months = 0; let totalInterestPaid = 0; fullPlanDetails = []; while (simulationDebts.some(d => d.balance > 0)) { months++; if (months > 1200) { break; } let interestForMonth = 0; for (const debt of simulationDebts) { if (debt.balance > 0) { const monthlyInterest = debt.balance * (debt.apr / 100 / 12); interestForMonth += monthlyInterest; debt.balance += monthlyInterest; } } totalInterestPaid += interestForMonth; let paymentsThisMonth = {}; for(const debt of simulationDebts) { paymentsThisMonth[debt.id] = 0; } let paymentBudget = totalMonthlyPayment; let minimumsDueThisMonth = 0; for (const debt of simulationDebts) { if (debt.balance > 0) { const minPayment = Math.min(debt.balance, debt.minPayment); paymentsThisMonth[debt.id] = minPayment; minimumsDueThisMonth += minPayment; } } let extraPaymentPool = totalMonthlyPayment - minimumsDueThisMonth; const paymentOrder = [...simulationDebts].sort((a, b) => { if (a.balance <= 0) return 1; if (b.balance <= 0) return -1; const aBalanceOwed = a.balance - paymentsThisMonth[a.id]; const bBalanceOwed = b.balance - paymentsThisMonth[b.id]; if (selectedStrategy === 'snowball') { if (aBalanceOwed === bBalanceOwed) return b.apr - a.apr; return aBalanceOwed - bBalanceOwed; } else { if (b.apr === a.apr) return aBalanceOwed - bBalanceOwed; return b.apr - a.apr; } }); for (const debt of paymentOrder) { if (extraPaymentPool > 0 && debt.balance > 0) { const remainingOwed = debt.balance - paymentsThisMonth[debt.id]; const extraPayment = Math.min(remainingOwed, extraPaymentPool); paymentsThisMonth[debt.id] += extraPayment; extraPaymentPool -= extraPayment; } } const monthBreakdown = { month: months, payments: [], totalInterest: interestForMonth }; for (const debt of simulationDebts) { const paymentApplied = paymentsThisMonth[debt.id] || 0; debt.balance -= paymentApplied; monthBreakdown.payments.push({ name: debt.name, paymentApplied: paymentApplied, newBalance: debt.balance < 0.005 ? 0 : debt.balance }); } monthBreakdown.remainingBalance = simulationDebts.reduce((sum, d) => sum + d.balance, 0); fullPlanDetails.push(monthBreakdown); } displayResults(months, totalInterestPaid); renderCharts(); }
+        
         function renderCharts() { dashboardCard.style.display = 'block'; if (!isPro()) { dashboardCard.innerHTML = `<p><strong>Upgrade to Pro to unlock your Visual Dashboard!</strong></p>`; return; } dashboardCard.innerHTML = `<div class="charts-grid"><div class="chart-container"><h3>Debt Breakdown</h3><canvas id="debtPieChart"></canvas></div><div class="chart-container" id="line-chart-container" style="display: none;"><h3>Payoff Projection</h3><canvas id="debtLineChart"></canvas></div></div>`; const pieChartCanvas = document.getElementById('debtPieChart'); const lineChartCanvas = document.getElementById('debtLineChart'); const lineChartContainer = document.getElementById('line-chart-container'); if (pieChartInstance) pieChartInstance.destroy(); if (lineChartInstance) lineChartInstance.destroy(); if (debts.length > 0) { const pieLabels = debts.map(d => d.name); const pieData = debts.map(d => d.balance); pieChartInstance = new Chart(pieChartCanvas, { type: 'pie', data: { labels: pieLabels, datasets: [{ data: pieData, backgroundColor: ['#007bff', '#dc3545', '#ffc107', '#28a745', '#6f42c1', '#fd7e14', '#20c997'], }] }, options: { responsive: true, maintainAspectRatio: true } }); } if (fullPlanDetails.length > 0) { lineChartContainer.style.display = 'block'; const lineLabels = fullPlanDetails.map(row => `M${row.month}`); lineLabels.unshift("Start"); const lineData = fullPlanDetails.map(row => row.remainingBalance); const startBalance = debts.reduce((sum, d) => sum + d.balance, 0); lineData.unshift(startBalance); lineChartInstance = new Chart(lineChartCanvas, { type: 'line', data: { labels: lineLabels, datasets: [{ label: 'Remaining Balance', data: lineData, borderColor: '#007bff', backgroundColor: 'rgba(0, 123, 255, 0.1)', fill: true, tension: 0.1 }] }, options: { responsive: true, maintainAspectRatio: true } }); } else { lineChartContainer.style.display = 'none'; } }
         function displayResults(months, totalInterestPaid) { resultsDiv.style.display = 'block'; monthDetailsDiv.style.display = 'none'; const years = Math.floor(months / 12); const remainingMonths = months % 12; resultsSummary.textContent = `You will be debt-free in ${years} years and ${remainingMonths} months! Total interest paid: $${totalInterestPaid.toFixed(2)}.`; planTbody.innerHTML = ''; fullPlanDetails.forEach((row, index) => { const tr = document.createElement('tr'); tr.dataset.index = index; const isPaid = paidMonths.includes(row.month); if(isPaid) tr.classList.add('paid-row'); const actualPaymentThisMonth = row.payments.reduce((sum, p) => sum + p.paymentApplied, 0); let statusCell = `<td><span class="pro-label">Pro</span></td>`; if (isPro()) { const buttonText = isPaid ? 'Unmark' : 'Mark Paid'; const buttonClass = isPaid ? 'toggle-paid-btn unmark' : 'toggle-paid-btn'; statusCell = `<td><button class="${buttonClass}" data-month="${row.month}">${buttonText}</button></td>`; } tr.innerHTML = `<td>${row.month}</td><td>$${actualPaymentThisMonth.toFixed(2)}</td><td>$${row.totalInterest.toFixed(2)}</td><td>$${row.remainingBalance.toFixed(2)}</td>${statusCell}`; planTbody.appendChild(tr); }); }
         function handlePlanClick(event) { if (event.target.classList.contains('toggle-paid-btn')) { event.stopPropagation(); if (!isPro()) { alert("Progress tracking is a Pro feature. Please upgrade."); return; } const month = parseInt(event.target.dataset.month); toggleMonthPaid(month, true); return; } const row = event.target.closest('tr'); if (!row) return; const monthIndex = parseInt(row.dataset.index); const monthData = fullPlanDetails[monthIndex]; displayMonthDetails(monthData); }
