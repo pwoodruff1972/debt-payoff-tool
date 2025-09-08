@@ -18,8 +18,11 @@
         button:hover { background-color: #0056b3; }
         ul { list-style-type: none; padding: 0; }
         li { background: #e9ecef; padding: 15px; margin-bottom: 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s ease-in-out; }
-        .delete-btn { background-color: #dc3545; padding: 5px 10px; font-size: 12px; }
+        .delete-btn, .edit-btn { padding: 5px 10px; font-size: 12px; margin-left: 5px;}
+        .delete-btn { background-color: #dc3545; }
         .delete-btn:hover { background-color: #c82333; }
+        .edit-btn { background-color: #6c757d; }
+        .edit-btn:hover { background-color: #5a6268; }
         .card { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 2em; border: 1px solid #dee2e6; }
         .card h3 { margin-top: 0; }
         .strategy-selector label { margin-right: 20px; cursor: pointer; font-weight: 500; }
@@ -58,6 +61,11 @@
         .debt-item.paid .debt-details { text-decoration: line-through; }
         .debt-item.paid .mark-paid-btn { color: #28a745; font-weight: bold; }
         .paid-badge { font-size: 0.8em; background-color: #28a745; color: white; padding: 3px 6px; border-radius: 4px; margin-left: 10px; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 2000; }
+        .modal-content { background-color: #fff; padding: 2rem; border-radius: 8px; width: 90%; max-width: 500px; }
+        .modal-content h3 { margin-top: 0; }
+        .modal-buttons { margin-top: 1rem; text-align: right; }
+        .modal-buttons button { margin-left: 10px; }
 
         @media (max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } #license-key-input { width: 100%; margin-bottom: 10px; } #unlock-btn, .buy-button { width: 100%; margin-left: 0; } }
     </style>
@@ -145,6 +153,27 @@
         </div>
     </div>
 
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Edit Debt</h3>
+            <form id="edit-debt-form">
+                <input type="hidden" id="edit-debt-id">
+                <label for="edit-debt-name">Debt Name/Due Date</label>
+                <input type="text" id="edit-debt-name" placeholder="Debt Name/Due Date (e.g., Visa/15th)" required>
+                <label for="edit-debt-balance">Current Balance ($)</label>
+                <input type="number" id="edit-debt-balance" placeholder="Current Balance ($)" required step="0.01">
+                <label for="edit-debt-apr">Interest Rate (APR %)</label>
+                <input type="number" id="edit-debt-apr" placeholder="Interest Rate (APR %)" required step="0.01">
+                <label for="edit-debt-min-payment">Minimum Monthly Payment ($)</label>
+                <input type="number" id="edit-debt-min-payment" placeholder="Minimum Monthly Payment ($)" required step="0.01">
+                <div class="modal-buttons">
+                    <button type="button" id="cancel-edit-btn" class="edit-btn">Cancel</button>
+                    <button type="submit" id="save-edit-btn">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
     window.addEventListener('DOMContentLoaded', (event) => {
         const debtForm = document.getElementById('debt-form');
@@ -169,6 +198,9 @@
         const dashboardCard = document.getElementById('dashboard-card');
         const upgradeMessage = document.getElementById('upgrade-message');
         const paidOffInstruction = document.getElementById('paid-off-instruction');
+        const editModal = document.getElementById('edit-modal');
+        const editDebtForm = document.getElementById('edit-debt-form');
+        const cancelEditBtn = document.getElementById('cancel-edit-btn');
 
         let debts = JSON.parse(localStorage.getItem('debts')) || [];
         let fullPlanDetails = [];
@@ -185,18 +217,11 @@
             const key = localStorage.getItem('debtToolProKey');
             if (!key) return false;
             if (key === PRO_KEY || key === FRIEND_KEY) return true;
-
             const gumroadKeyRegex = /^[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}$/i;
             if (!gumroadKeyRegex.test(key)) return false;
-
             const unlockDate = localStorage.getItem('proUnlockDate');
-            if (!unlockDate) {
-                localStorage.setItem('proUnlockDate', Date.now());
-                return true;
-            }
-
-            const daysSinceUnlock = (Date.now() - parseInt(unlockDate, 10)) / (1000 * 60 * 60 * 24);
-            return daysSinceUnlock < 366;
+            if (!unlockDate) { localStorage.setItem('proUnlockDate', Date.now()); return true; }
+            return (Date.now() - parseInt(unlockDate, 10)) / (1000 * 60 * 60 * 24) < 366;
         }
         
         function unlockPro() { 
@@ -228,9 +253,8 @@
             const keyExists = !!localStorage.getItem('debtToolProKey');
             
             avalancheRadio.disabled = false;
-            avalancheLabel.classList.remove('disabled-label');
+            
             paidOffInstruction.style.display = proStatus ? 'inline' : 'none';
-
             if (proStatus) { 
                 upgradeCard.style.display = 'none'; 
                 dashboardContainer.style.display = 'block'; 
@@ -256,6 +280,9 @@
         importFileInput.addEventListener('change', importData);
         unlockBtn.addEventListener('click', unlockPro);
         monthDetailsDiv.addEventListener('change', handlePaymentCheck);
+        editDebtForm.addEventListener('submit', saveDebtChanges);
+        cancelEditBtn.addEventListener('click', closeEditModal);
+        editModal.addEventListener('click', (event) => { if (event.target === editModal) { closeEditModal(); } });
 
         function exportData() { if (debts.length === 0) { return; } const dataToExport = { debts, paidMonths, budget: totalPaymentInput.value, proKey: localStorage.getItem('debtToolProKey'), proUnlockDate: localStorage.getItem('proUnlockDate'), paidDebtIds, paidProgress }; const dataStr = JSON.stringify(dataToExport, null, 2); const dataBlob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(dataBlob); const link = document.createElement('a'); link.href = url; link.download = `my-debt-plan-${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); }
         function importData(event) { const file = event.target.files[0]; if (!file) { return; } const reader = new FileReader(); reader.onload = function(e) { try { const importedData = JSON.parse(e.target.result); if (Array.isArray(importedData)) { debts = importedData; paidMonths = []; paidDebtIds = []; paidProgress = {}; totalPaymentInput.value = ''; alert("Old data format imported successfully! Your Pro status has been preserved. Please set your budget and calculate a new plan."); } else if (importedData && Array.isArray(importedData.debts)) { debts = importedData.debts; paidMonths = importedData.paidMonths || []; paidDebtIds = importedData.paidDebtIds || []; paidProgress = importedData.paidProgress || {}; totalPaymentInput.value = importedData.budget || ''; if (importedData.hasOwnProperty('proKey') && importedData.proKey !== null) { localStorage.setItem('debtToolProKey', importedData.proKey); localStorage.setItem('proUnlockDate', importedData.proUnlockDate); } alert("Data imported successfully! Click 'Calculate Plan' to see your new schedule."); } else { throw new Error("Invalid file format."); } saveAndRender(); } catch (error) { alert("Error reading file."); } }; reader.onerror = function() { alert("Failed to read the file."); }; reader.readAsText(file); importFileInput.value = ''; }
@@ -274,10 +301,14 @@
             saveAndRender();
             debtForm.reset();
         }
-        function handleListClick(event) { const target = event.target; const listItem = target.closest('li'); if (!listItem) return; const id = parseInt(listItem.dataset.id); if (target.classList.contains('delete-btn')) { debts = debts.filter(debt => debt.id !== id); resetPlanAndProgress(); saveAndRender(); } if (target.classList.contains('mark-paid-btn')) { if (!isPro()) { alert("Marking debts as paid is a Pro feature. Please upgrade."); return; } toggleDebtPaid(id); } }
+        function handleListClick(event) { const target = event.target; const listItem = target.closest('li'); if (!listItem) return; const id = parseInt(listItem.dataset.id); if (target.classList.contains('delete-btn')) { debts = debts.filter(debt => debt.id !== id); resetPlanAndProgress(); saveAndRender(); } if (target.classList.contains('mark-paid-btn')) { if (!isPro()) { alert("Marking debts as paid is a Pro feature. Please upgrade."); return; } toggleDebtPaid(id); } if (target.classList.contains('edit-btn')) { openEditModal(id); } }
         function resetPlanAndProgress() { paidMonths = []; paidDebtIds = []; paidProgress = {}; localStorage.removeItem('paidMonths'); localStorage.removeItem('paidDebtIds'); localStorage.removeItem('paidProgress'); resultsDiv.style.display = 'none'; if (lineChartInstance) { lineChartInstance.destroy(); lineChartInstance = null; } renderCharts(); }
         function toggleDebtPaid(debtId) { const index = paidDebtIds.indexOf(debtId); if (index > -1) { paidDebtIds.splice(index, 1); } else { paidDebtIds.push(debtId); } localStorage.setItem('paidDebtIds', JSON.stringify(paidDebtIds)); saveAndRender(); }
         
+        function openEditModal(debtId) { const debtToEdit = debts.find(debt => debt.id === debtId); if (!debtToEdit) return; document.getElementById('edit-debt-id').value = debtToEdit.id; document.getElementById('edit-debt-name').value = debtToEdit.name; document.getElementById('edit-debt-balance').value = debtToEdit.balance; document.getElementById('edit-debt-apr').value = debtToEdit.apr; document.getElementById('edit-debt-min-payment').value = debtToEdit.minPayment; editModal.style.display = 'flex'; }
+        function closeEditModal() { editModal.style.display = 'none'; }
+        function saveDebtChanges(event) { event.preventDefault(); const id = parseInt(document.getElementById('edit-debt-id').value); const debtToUpdate = debts.find(debt => debt.id === id); if (!debtToUpdate) return; debtToUpdate.name = document.getElementById('edit-debt-name').value; debtToUpdate.balance = parseFloat(document.getElementById('edit-debt-balance').value); debtToUpdate.apr = parseFloat(document.getElementById('edit-debt-apr').value); debtToUpdate.minPayment = parseFloat(document.getElementById('edit-debt-min-payment').value); closeEditModal(); resetPlanAndProgress(); saveAndRender(); }
+
         function calculatePlan() {
             const totalMonthlyPayment = parseFloat(totalPaymentInput.value);
             const totalMinimums = debts.reduce((sum, debt) => sum + debt.minPayment, 0);
@@ -368,7 +399,7 @@
                 const isPaid = paidDebtIds.includes(debt.id);
                 if (isPaid) { listItem.classList.add('paid'); }
                 const checkmark = isPro() ? `<span class="mark-paid-btn" title="Mark as Paid Off">✓</span>` : '';
-                listItem.innerHTML = `<div style="display: flex; align-items: center;">${checkmark}<div class="debt-details"><strong>${debt.name}</strong>${isPaid ? '<span class="paid-badge">PAID!</span>' : ''}<br><small>$${debt.balance.toFixed(2)} @ ${debt.apr}% APR (Min: $${debt.minPayment.toFixed(2)})</small></div></div><button class="delete-btn">Delete</button>`;
+                listItem.innerHTML = `<div style="display: flex; align-items: center;">${checkmark}<div class="debt-details"><strong>${debt.name}</strong>${isPaid ? '<span class="paid-badge">PAID!</span>' : ''}<br><small>$${debt.balance.toFixed(2)} @ ${debt.apr}% APR (Min: $${debt.minPayment.toFixed(2)})</small></div></div><div class="debt-actions"><button class="edit-btn">Edit</button><button class="delete-btn">Delete</button></div>`;
                 debtList.appendChild(listItem);
             });
         }
