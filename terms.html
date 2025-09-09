@@ -3,44 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terms of Service | Debt Payoff Planner</title>
+    <title>Terms of Service - Debt Payoff Planner</title>
     <style>
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             margin: 0;
             background-color: #f8f9fa;
             color: #333;
-            line-height: 1.7;
+            line-height: 1.6;
         }
         .navbar {
             background-color: #fff;
-            padding: 1.2rem 2rem;
-            font-weight: 600;
-            text-align: center;
-            font-size: 1.25rem;
+            padding: 1rem 2rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         .container {
             max-width: 800px;
             margin: auto;
             padding: 2rem;
         }
-        .page-header {
-            text-align: center;
-            padding: 3rem 1rem 1rem 1rem;
-        }
-        .page-header h1 {
-            font-size: 2.8rem;
-            margin-bottom: 0.5rem;
-        }
-        .content-section {
+        .content-box {
             background-color: #fff;
             padding: 2rem;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e9ecef;
+        }
+        h1 {
+            text-align: center;
             margin-bottom: 2rem;
         }
         .footer {
@@ -49,37 +41,56 @@
             margin-top: 2rem;
             color: #888;
             font-size: 0.9rem;
+            border-top: 1px solid #e9ecef;
         }
         .footer-links a {
             color: #6c757d;
             text-decoration: none;
             margin: 0 10px;
         }
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
+
     <nav class="navbar">
-        <a href="index.html" style="text-decoration: none; color: inherit;">Debt Payoff Planner</a>
+        <a href="index.html">
+            <img src="logo.svg" alt="Debt Payoff Planner Logo" style="height: 40px;">
+        </a>
     </nav>
+
     <div class="container">
-        <header class="page-header">
-            <h1>Terms of Service</h1>
-        </header>
-        <section class="content-section">
-            <p><strong>Last updated: September 5, 2025</strong></p>
-            <p>By using this website and the Debt Payoff Planner tool (the "Service"), you agree to be bound by these Terms of Service.</p>
-            <h3>Disclaimer of Warranties</h3>
-            <p>The Service is provided on an "as is" and "as available" basis. The calculations and plans generated are for informational purposes only and we make no warranties regarding their accuracy or applicability to your financial situation. You are responsible for verifying the accuracy of the information and for your own financial decisions.</p>
-            <h3>Limitation of Liability</h3>
-            <p>In no event shall the creators of this Service be liable for any direct, indirect, incidental, special, or consequential damages arising out of the use of or inability to use the Service. Since all data is stored locally on your computer, you are solely responsible for its backup and security.</p>
-            <h3>License to Use</h3>
-            <p>If you purchase a Pro license, you are granted a non-exclusive, non-transferable license to use the Pro features of the Service for the duration of your license term (e.g., one year for an annual subscription). The license key is for your personal use and may not be shared or resold.</p>
-            <h3>Changes to Terms</h3>
-            <p>We reserve the right to modify these terms at any time. Your continued use of the Service after any such changes constitutes your acceptance of the new terms.</p>
-             <h3>Contact Us</h3>
-            <p>If you have any questions about these Terms of Service, you can contact us by email at <a href="mailto:pwoodruff1972@gmail.com">pwoodruff1972@gmail.com</a>.</p>
-        </section>
+        <h1>Terms of Service</h1>
+        <div class="content-box">
+            <p><strong>Last Updated:</strong> September 10, 2025</p>
+
+            <p>Welcome to the Debt Payoff Planner. By accessing and using our website and tool ("the Service"), you agree to be bound by the following terms and conditions.</p>
+
+            <h3>1. Use of the Service</h3>
+            <p>The Service is provided for personal, non-commercial use to help you create and manage a debt payoff plan. You agree to use the Service responsibly and for its intended purpose.</p>
+
+            <h3>2. No Financial Advice</h3>
+            <p>The Debt Payoff Planner is an informational and educational tool only. The calculations and plans generated by the Service are based on the data you provide and standard financial formulas. We are not financial advisors, and the Service does not provide financial, legal, or tax advice. You should consult with a qualified professional before making any financial decisions.</p>
+
+            <h3>3. Pro Version & License Keys</h3>
+            <p>We offer a "Pro" version of the Service for a fee. Upon purchase through our third-party payment processor, Gumroad, you will receive a license key to unlock Pro features. This license is for your personal use and may not be shared or resold. Annual licenses are valid for one year from the date of purchase and must be renewed to maintain access to Pro features.</p>
+
+            <h3>4. Disclaimer of Warranty</h3>
+            <p>The Service is provided "as is," without any warranties of any kind. We do not guarantee that the Service will be error-free or that the calculations will be accurate for your specific financial situation. You are responsible for verifying the accuracy of any information you enter and the results you receive.</p>
+
+            <h3>5. Limitation of Liability</h3>
+            <p>In no event shall the Debt Payoff Planner be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the Service.</p>
+
+             <h3>6. Changes to Terms</h3>
+            <p>We reserve the right to modify these terms at any time. We will notify you of any changes by posting the new terms on this page. Your continued use of the Service after any such changes constitutes your acceptance of the new terms.</p>
+
+            <h3>7. Contact Us</h3>
+            <p>If you have any questions about these Terms of Service, please contact us at <a href="mailto:support@privatedebtplanner.com">support@privatedebtplanner.com</a>.</p>
+        </div>
     </div>
+
     <footer class="footer">
         <div>&copy; 2025 Debt Payoff Planner</div>
         <div class="footer-links">
@@ -88,6 +99,7 @@
             <a href="terms.html">Terms of Service</a>
         </div>
     </footer>
+
 </body>
 </html>
 
