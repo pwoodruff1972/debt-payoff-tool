@@ -215,7 +215,6 @@
         const licenseKeyInput = document.getElementById('license-key-input');
         const unlockBtn = document.getElementById('unlock-btn');
         const avalancheRadio = document.getElementById('avalanche-radio');
-        const avalancheLabel = document.getElementById('avalanche-label');
         const dashboardContainer = document.getElementById('dashboard-container');
         const dashboardCard = document.getElementById('dashboard-card');
         const upgradeMessage = document.getElementById('upgrade-message');
@@ -275,6 +274,7 @@
             const proStatus = isPro(); 
             const keyExists = !!localStorage.getItem('debtToolProKey');
             
+            // This is the only logic change: All tracking features are now FREE.
             avalancheRadio.disabled = false;
             paidOffInstruction.style.display = 'inline';
 
@@ -309,7 +309,46 @@
         compareBtn.addEventListener('click', runScenario);
 
         function exportData() { if (debts.length === 0) { return; } const dataToExport = { debts, paidMonths, budget: totalPaymentInput.value, proKey: localStorage.getItem('debtToolProKey'), proUnlockDate: localStorage.getItem('proUnlockDate'), paidDebtIds, paidProgress }; const dataStr = JSON.stringify(dataToExport, null, 2); const dataBlob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(dataBlob); const link = document.createElement('a'); link.href = url; link.download = `my-debt-plan-${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); }
-        function importData(event) { const file = event.target.files[0]; if (!file) { return; } const reader = new FileReader(); reader.onload = function(e) { try { const importedData = JSON.parse(e.target.result); if (Array.isArray(importedData)) { debts = importedData; paidMonths = []; paidDebtIds = []; paidProgress = {}; totalPaymentInput.value = ''; alert("Old data format imported successfully! Your Pro status has been preserved. Please set your budget and calculate a new plan."); } else if (importedData && Array.isArray(importedData.debts)) { debts = importedData.debts; paidMonths = importedData.paidMonths || []; paidDebtIds = importedData.paidDebtIds || []; paidProgress = importedData.paidProgress || {}; totalPaymentInput.value = importedData.budget || ''; if (importedData.hasOwnProperty('proKey') && importedData.proKey !== null) { localStorage.setItem('debtToolProKey', importedData.proKey); localStorage.setItem('proUnlockDate', importedData.proUnlockDate); } alert("Data imported successfully! Click 'Calculate Plan' to see your new schedule."); } else { throw new Error("Invalid file format."); } saveAndRender(); } catch (error) { alert("Error reading file."); } }; reader.onerror = function() { alert("Failed to read the file."); }; reader.readAsText(file); importFileInput.value = ''; }
+        
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) { return; }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (Array.isArray(importedData)) {
+                        debts = importedData;
+                        paidMonths = []; paidDebtIds = []; paidProgress = {};
+                        totalPaymentInput.value = '';
+                        alert("Old data format imported successfully! Your Pro status has been preserved. Please set your budget and calculate a new plan.");
+                    } else if (importedData && Array.isArray(importedData.debts)) {
+                        debts = importedData.debts;
+                        paidMonths = importedData.paidMonths || [];
+                        paidDebtIds = importedData.paidDebtIds || [];
+                        paidProgress = importedData.paidProgress || {};
+                        totalPaymentInput.value = importedData.budget || '';
+
+                        const currentKey = localStorage.getItem('debtToolProKey');
+                        const importedKey = importedData.proKey;
+                        if (importedKey && importedData.proUnlockDate) {
+                            if (importedKey === currentKey && !isPro()) {
+                                // Loophole detected: Do not update the date
+                            } else {
+                                localStorage.setItem('debtToolProKey', importedKey);
+                                localStorage.setItem('proUnlockDate', importedData.proUnlockDate);
+                            }
+                        }
+                        alert("Data imported successfully! Click 'Calculate Plan' to see your new schedule.");
+                    } else { throw new Error("Invalid file format."); }
+                    saveAndRender();
+                } catch (error) { alert("Error reading file."); }
+            };
+            reader.onerror = function() { alert("Failed to read the file."); };
+            reader.readAsText(file);
+            importFileInput.value = '';
+        }
+
         function addDebt(event) {
             event.preventDefault();
             if (!isPro() && debts.length >= 5) { alert("The free plan is limited to 5 debts. Please upgrade to Pro for unlimited debts."); return; }
