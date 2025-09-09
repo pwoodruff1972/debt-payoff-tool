@@ -3,54 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Us | Debt Payoff Planner</title>
+    <title>Contact Us - Debt Payoff Planner</title>
     <style>
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             margin: 0;
             background-color: #f8f9fa;
             color: #333;
-            line-height: 1.7;
+            line-height: 1.6;
         }
         .navbar {
             background-color: #fff;
-            padding: 1.2rem 2rem;
-            font-weight: 600;
-            text-align: center;
-            font-size: 1.25rem;
+            padding: 1rem 2rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         .container {
             max-width: 800px;
             margin: auto;
             padding: 2rem;
         }
-        .page-header {
-            text-align: center;
-            padding: 3rem 1rem 1rem 1rem;
-        }
-        .page-header h1 {
-            font-size: 2.8rem;
-            margin-bottom: 0.5rem;
-        }
-        .content-section {
+        .content-box {
             background-color: #fff;
-            padding: 2.5rem;
+            padding: 2rem;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            margin-bottom: 2rem;
+            border: 1px solid #e9ecef;
+        }
+        h1 {
             text-align: center;
-        }
-        .content-section a {
-            color: #007bff;
-            font-weight: 600;
-            text-decoration: none;
-        }
-        .content-section a:hover {
-            text-decoration: underline;
+            margin-bottom: 2rem;
         }
         .footer {
             text-align: center;
@@ -58,30 +41,44 @@
             margin-top: 2rem;
             color: #888;
             font-size: 0.9rem;
+            border-top: 1px solid #e9ecef;
         }
         .footer-links a {
             color: #6c757d;
             text-decoration: none;
             margin: 0 10px;
         }
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
+
     <nav class="navbar">
-        <a href="index.html" style="text-decoration: none; color: inherit;">Debt Payoff Planner</a>
+        <a href="index.html">
+            <img src="logo.svg" alt="Debt Payoff Planner Logo" style="height: 40px;">
+        </a>
     </nav>
+
     <div class="container">
-        <header class="page-header">
-            <h1>Contact Us</h1>
-        </header>
-        <section class="content-section">
-            <h2>Get in Touch</h2>
-            <p>Have questions, feedback, or need support? We'd love to hear from you!</p>
-            <p>The best way to reach us is by email:</p>
-            <p><a href="mailto:pwoodruff1972@gmail.com"><strong>pwoodruff1972@gmail.com</strong></a></p>
-            <p>We'll do our best to get back to you as soon as possible.</p>
-        </section>
+        <h1>Contact Us</h1>
+        <div class="content-box">
+            <p>Thank you for using the Debt Payoff Planner! We value your feedback and are here to help with any questions you may have.</p>
+            
+            <h3>Feedback & Suggestions</h3>
+            <p>Have an idea for a new feature or an improvement? We'd love to hear it! Your feedback helps us make the tool better for everyone.</p>
+
+            <h3>Support</h3>
+            <p>If you're experiencing a technical issue or have a question about how to use the tool, please don't hesitate to reach out.</p>
+
+            <p><strong>The best way to contact us is by email:</strong></p>
+            <p><a href="mailto:support@privatedebtplanner.com">support@privatedebtplanner.com</a></p>
+
+            <p>We do our best to respond to all inquiries within 1-2 business days.</p>
+        </div>
     </div>
+
     <footer class="footer">
         <div>&copy; 2025 Debt Payoff Planner</div>
         <div class="footer-links">
@@ -90,6 +87,7 @@
             <a href="terms.html">Terms of Service</a>
         </div>
     </footer>
+
 </body>
 </html>
 
