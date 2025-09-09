@@ -27,7 +27,7 @@
         .card h3 { margin-top: 0; }
         .strategy-selector label { margin-right: 20px; cursor: pointer; font-weight: 500; }
         .strategy-description { font-size: 14px; color: #666; padding-left: 22px; margin-bottom: 10px; margin-top: 2px; }
-        #results { margin-top: 2em; background-color: #e6f7ff; border: 1px solid #91d5ff; padding: 20px; border-radius: 8px; }
+        #results, #scenario-planner { margin-top: 2em; background-color: #e6f7ff; border: 1px solid #91d5ff; padding: 20px; border-radius: 8px; }
         table { width: 100%; border-collapse: collapse; margin-top: 1em; }
         th, td { text-align: left; padding: 12px 8px; border-bottom: 1px solid #ddd; }
         th { background-color: #f2f2f2; }
@@ -48,7 +48,6 @@
         #upgrade-card { border: 2px solid #007bff; background-color: #f0f8ff; }
         #upgrade-card h3 { color: #007bff; }
         .pro-label { font-size: 0.8em; background-color: #007bff; color: white; padding: 2px 5px; border-radius: 3px; margin-left: 5px; }
-        .disabled-label { color: #999; cursor: not-allowed; }
         #license-key-input { width: calc(100% - 250px); margin-right: 10px; display: inline-block; }
         #unlock-btn { width: 110px; display: inline-block; }
         .buy-button { background-color: #28a745; display: inline-block; text-align: center; text-decoration: none; color: white !important; padding: 10px 15px; border-radius: 4px; font-size: 16px; margin-left: 10px;}
@@ -66,8 +65,9 @@
         .modal-content h3 { margin-top: 0; }
         .modal-buttons { margin-top: 1rem; text-align: right; }
         .modal-buttons button { margin-left: 10px; }
+        .scenario-grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 1rem; align-items: end; }
 
-        @media (max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } #license-key-input { width: 100%; margin-bottom: 10px; } #unlock-btn, .buy-button { width: 100%; margin-left: 0; } }
+        @media (max-width: 768px) { .charts-grid, .scenario-grid { grid-template-columns: 1fr; } #license-key-input { width: 100%; margin-bottom: 10px; } #unlock-btn, .buy-button { width: 100%; margin-left: 0; } }
     </style>
 </head>
 <body>
@@ -84,8 +84,8 @@
             <p id="upgrade-message" style="font-size: 14px; color: #555; margin-top: 0;">Unlock powerful features to accelerate your debt-free journey:</p>
             <ul>
                 <li>✅ Add Unlimited Debts</li>
-                <li>✅ Access visual charts and graphs</li>
-                <li>✅ Interactive Progress Tracking</li>
+                <li>✅ Access Visual Dashboard & Charts</li>
+                <li>✅ "What If" Scenario Planner</li>
             </ul>
             <div>
                 <input type="text" id="license-key-input" placeholder="Enter License Key">
@@ -151,8 +151,30 @@
             </table>
             <div id="month-details" style="display: none;"></div>
         </div>
+        
+        <div id="scenario-planner" class="card" style="display: none;">
+            <h3>"What If" Scenario Planner <span class="pro-label">Pro</span></h3>
+            <div class="scenario-grid">
+                <div>
+                    <label for="extra-payment">Extra Monthly Payment</label>
+                    <input type="number" id="extra-payment" placeholder="$100">
+                </div>
+                <div>
+                    <label for="lump-sum">One-Time Lump Sum</label>
+                    <input type="number" id="lump-sum" placeholder="$1000">
+                </div>
+                <div>
+                    <label for="lump-sum-month">Lump Sum Month (Month # to apply)</label>
+                    <input type="number" id="lump-sum-month" placeholder="e.g., 6" min="1">
+                </div>
+                <div>
+                    <button id="compare-btn">Compare</button>
+                </div>
+            </div>
+            <div id="scenario-results" style="display: none; margin-top: 1rem;"></div>
+        </div>
     </div>
-
+    
     <div id="edit-modal" class="modal-overlay">
         <div class="modal-content">
             <h3>Edit Debt</h3>
@@ -197,10 +219,13 @@
         const dashboardContainer = document.getElementById('dashboard-container');
         const dashboardCard = document.getElementById('dashboard-card');
         const upgradeMessage = document.getElementById('upgrade-message');
-        const paidOffInstruction = document.getElementById('paid-off-instruction');
         const editModal = document.getElementById('edit-modal');
         const editDebtForm = document.getElementById('edit-debt-form');
         const cancelEditBtn = document.getElementById('cancel-edit-btn');
+        const paidOffInstruction = document.getElementById('paid-off-instruction');
+        const scenarioPlanner = document.getElementById('scenario-planner');
+        const compareBtn = document.getElementById('compare-btn');
+        const scenarioResults = document.getElementById('scenario-results');
 
         let debts = JSON.parse(localStorage.getItem('debts')) || [];
         let fullPlanDetails = [];
@@ -227,12 +252,10 @@
         function unlockPro() { 
             const newKey = licenseKeyInput.value.trim();
             const oldKey = localStorage.getItem('debtToolProKey');
-            
             if (newKey === oldKey && !isPro()) {
                 alert("This license key has expired. Please purchase a new key to renew your Pro access.");
                 return;
             }
-
             const gumroadKeyRegex = /^[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}$/i;
             if (newKey === PRO_KEY || newKey === FRIEND_KEY) {
                 localStorage.setItem('debtToolProKey', newKey);
@@ -243,7 +266,7 @@
                 localStorage.setItem('proUnlockDate', Date.now());
                 alert("Success! Pro features unlocked for one year.");
             } else {
-                alert("Invalid license key. Please check the key and try again.");
+                alert("Invalid license key.");
             }
             updateUIForProStatus();
         }
@@ -253,8 +276,8 @@
             const keyExists = !!localStorage.getItem('debtToolProKey');
             
             avalancheRadio.disabled = false;
-            
-            paidOffInstruction.style.display = proStatus ? 'inline' : 'none';
+            paidOffInstruction.style.display = 'inline';
+
             if (proStatus) { 
                 upgradeCard.style.display = 'none'; 
                 dashboardContainer.style.display = 'block'; 
@@ -273,7 +296,7 @@
         debtForm.addEventListener('submit', addDebt);
         debtList.addEventListener('click', handleListClick);
         strategyRadios.forEach(radio => renderDebts());
-        calculateBtn.addEventListener('click', calculatePlan);
+        calculateBtn.addEventListener('click', () => calculatePlan());
         planTbody.addEventListener('click', handlePlanClick);
         exportBtn.addEventListener('click', exportData);
         importBtn.addEventListener('click', () => importFileInput.click());
@@ -283,6 +306,7 @@
         editDebtForm.addEventListener('submit', saveDebtChanges);
         cancelEditBtn.addEventListener('click', closeEditModal);
         editModal.addEventListener('click', (event) => { if (event.target === editModal) { closeEditModal(); } });
+        compareBtn.addEventListener('click', runScenario);
 
         function exportData() { if (debts.length === 0) { return; } const dataToExport = { debts, paidMonths, budget: totalPaymentInput.value, proKey: localStorage.getItem('debtToolProKey'), proUnlockDate: localStorage.getItem('proUnlockDate'), paidDebtIds, paidProgress }; const dataStr = JSON.stringify(dataToExport, null, 2); const dataBlob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(dataBlob); const link = document.createElement('a'); link.href = url; link.download = `my-debt-plan-${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); }
         function importData(event) { const file = event.target.files[0]; if (!file) { return; } const reader = new FileReader(); reader.onload = function(e) { try { const importedData = JSON.parse(e.target.result); if (Array.isArray(importedData)) { debts = importedData; paidMonths = []; paidDebtIds = []; paidProgress = {}; totalPaymentInput.value = ''; alert("Old data format imported successfully! Your Pro status has been preserved. Please set your budget and calculate a new plan."); } else if (importedData && Array.isArray(importedData.debts)) { debts = importedData.debts; paidMonths = importedData.paidMonths || []; paidDebtIds = importedData.paidDebtIds || []; paidProgress = importedData.paidProgress || {}; totalPaymentInput.value = importedData.budget || ''; if (importedData.hasOwnProperty('proKey') && importedData.proKey !== null) { localStorage.setItem('debtToolProKey', importedData.proKey); localStorage.setItem('proUnlockDate', importedData.proUnlockDate); } alert("Data imported successfully! Click 'Calculate Plan' to see your new schedule."); } else { throw new Error("Invalid file format."); } saveAndRender(); } catch (error) { alert("Error reading file."); } }; reader.onerror = function() { alert("Failed to read the file."); }; reader.readAsText(file); importFileInput.value = ''; }
@@ -301,7 +325,7 @@
             saveAndRender();
             debtForm.reset();
         }
-        function handleListClick(event) { const target = event.target; const listItem = target.closest('li'); if (!listItem) return; const id = parseInt(listItem.dataset.id); if (target.classList.contains('delete-btn')) { debts = debts.filter(debt => debt.id !== id); resetPlanAndProgress(); saveAndRender(); } if (target.classList.contains('mark-paid-btn')) { if (!isPro()) { alert("Marking debts as paid is a Pro feature. Please upgrade."); return; } toggleDebtPaid(id); } if (target.classList.contains('edit-btn')) { openEditModal(id); } }
+        function handleListClick(event) { const target = event.target; const listItem = target.closest('li'); if (!listItem) return; const id = parseInt(listItem.dataset.id); if (target.classList.contains('delete-btn')) { debts = debts.filter(debt => debt.id !== id); resetPlanAndProgress(); saveAndRender(); } if (target.classList.contains('mark-paid-btn')) { toggleDebtPaid(id); } if (target.classList.contains('edit-btn')) { openEditModal(id); } }
         function resetPlanAndProgress() { paidMonths = []; paidDebtIds = []; paidProgress = {}; localStorage.removeItem('paidMonths'); localStorage.removeItem('paidDebtIds'); localStorage.removeItem('paidProgress'); resultsDiv.style.display = 'none'; if (lineChartInstance) { lineChartInstance.destroy(); lineChartInstance = null; } renderCharts(); }
         function toggleDebtPaid(debtId) { const index = paidDebtIds.indexOf(debtId); if (index > -1) { paidDebtIds.splice(index, 1); } else { paidDebtIds.push(debtId); } localStorage.setItem('paidDebtIds', JSON.stringify(paidDebtIds)); saveAndRender(); }
         
@@ -309,22 +333,33 @@
         function closeEditModal() { editModal.style.display = 'none'; }
         function saveDebtChanges(event) { event.preventDefault(); const id = parseInt(document.getElementById('edit-debt-id').value); const debtToUpdate = debts.find(debt => debt.id === id); if (!debtToUpdate) return; debtToUpdate.name = document.getElementById('edit-debt-name').value; debtToUpdate.balance = parseFloat(document.getElementById('edit-debt-balance').value); debtToUpdate.apr = parseFloat(document.getElementById('edit-debt-apr').value); debtToUpdate.minPayment = parseFloat(document.getElementById('edit-debt-min-payment').value); closeEditModal(); resetPlanAndProgress(); saveAndRender(); }
 
-        function calculatePlan() {
-            const totalMonthlyPayment = parseFloat(totalPaymentInput.value);
-            const totalMinimums = debts.reduce((sum, debt) => sum + debt.minPayment, 0);
-            if (debts.length === 0) { alert("Please add at least one debt."); return; }
-            if (isNaN(totalMonthlyPayment) || totalMonthlyPayment <= 0) { alert("Please enter a valid total monthly payment."); return; }
-            if (totalMonthlyPayment < totalMinimums) { alert(`Your total monthly payment must be at least $${totalMinimums.toFixed(2)} to cover your minimums.`); return; }
-            localStorage.setItem('monthlyBudget', totalMonthlyPayment);
+        function calculatePlan(isScenario = false, scenarioParams = {}) {
+            const { extraPayment = 0, lumpSum = 0, lumpSumMonth = -1 } = scenarioParams;
+            const baseMonthlyPayment = parseFloat(totalPaymentInput.value);
+            if (debts.length === 0) { if (!isScenario) { alert("Please add at least one debt."); } return; }
+            if (!isScenario && (isNaN(baseMonthlyPayment) || baseMonthlyPayment <= 0)) { alert("Please enter a valid total monthly payment."); return; }
+            const totalMonthlyPayment = baseMonthlyPayment + extraPayment;
+            
             let simulationDebts = JSON.parse(JSON.stringify(debts));
-            simulationDebts.forEach(d => { if (paidDebtIds.includes(d.id)) d.balance = 0; });
+            simulationDebts.forEach(d => { if(paidDebtIds.includes(d.id)) d.balance = 0; });
             const selectedStrategy = document.querySelector('input[name="strategy"]:checked').value;
             let months = 0;
             let totalInterestPaid = 0;
-            fullPlanDetails = [];
+            let tempPlanDetails = [];
             while (simulationDebts.some(d => d.balance > 0)) {
                 months++;
                 if (months > 1200) { break; }
+                if (months === lumpSumMonth) {
+                    let lumpSumRemaining = lumpSum;
+                    const lumpSumOrder = [...simulationDebts].sort((a,b) => selectedStrategy === 'snowball' ? a.balance - b.balance : b.apr - a.apr);
+                    for(const debt of lumpSumOrder) {
+                        if(lumpSumRemaining > 0 && debt.balance > 0) {
+                            const payment = Math.min(debt.balance, lumpSumRemaining);
+                            debt.balance -= payment;
+                            lumpSumRemaining -= payment;
+                        }
+                    }
+                }
                 let interestForMonth = 0;
                 for (const debt of simulationDebts) {
                     if (debt.balance > 0) {
@@ -335,8 +370,7 @@
                 }
                 totalInterestPaid += interestForMonth;
                 let paymentsThisMonth = {};
-                for (const debt of simulationDebts) { paymentsThisMonth[debt.id] = 0; }
-                let paymentBudget = totalMonthlyPayment;
+                for(const debt of simulationDebts) { paymentsThisMonth[debt.id] = 0; }
                 let minimumsDueThisMonth = 0;
                 for (const debt of simulationDebts) {
                     if (debt.balance > 0) {
@@ -370,25 +404,57 @@
                 for (const debt of simulationDebts) {
                     const paymentApplied = paymentsThisMonth[debt.id] || 0;
                     debt.balance -= paymentApplied;
-                    monthBreakdown.payments.push({
-                        name: debt.name,
-                        paymentApplied: paymentApplied,
-                        newBalance: debt.balance < 0.005 ? 0 : debt.balance
-                    });
+                    monthBreakdown.payments.push({ name: debt.name, paymentApplied: paymentApplied, newBalance: debt.balance < 0.005 ? 0 : debt.balance });
                 }
                 monthBreakdown.remainingBalance = simulationDebts.reduce((sum, d) => sum + d.balance, 0);
-                fullPlanDetails.push(monthBreakdown);
+                tempPlanDetails.push(monthBreakdown);
             }
-            displayResults(months, totalInterestPaid);
-            renderCharts();
+            if (isScenario) {
+                return { months, totalInterestPaid };
+            } else {
+                fullPlanDetails = tempPlanDetails;
+                displayResults(months, totalInterestPaid);
+                renderCharts();
+            }
+        }
+        
+        function formatMonthsToYears(totalMonths) {
+            const years = Math.floor(totalMonths / 12);
+            const months = totalMonths % 12;
+            let result = '';
+            if (years > 0) { result += `${years} year${years > 1 ? 's' : ''}`; }
+            if (months > 0) { if (years > 0) result += ' and '; result += `${months} month${months > 1 ? 's' : ''}`; }
+            if (years === 0 && months === 0 && totalMonths > 0) { return `${totalMonths} months`; }
+            if (totalMonths === 0) return '0 months';
+            return result;
         }
 
+        function runScenario() {
+            const extraPayment = parseFloat(document.getElementById('extra-payment').value) || 0;
+            const lumpSum = parseFloat(document.getElementById('lump-sum').value) || 0;
+            const lumpSumMonth = parseInt(document.getElementById('lump-sum-month').value) || -1;
+            if (extraPayment <= 0 && lumpSum <= 0) { alert("Please enter an extra payment or a lump sum to compare."); return; }
+            if (lumpSum > 0 && (lumpSumMonth <= 0 || lumpSumMonth > fullPlanDetails.length)) { alert(`Please enter a valid month (between 1 and ${fullPlanDetails.length}) for the lump sum payment.`); return; }
+            const scenarioResult = calculatePlan(true, { extraPayment, lumpSum, lumpSumMonth });
+            const originalMonths = fullPlanDetails.length;
+            const originalInterest = fullPlanDetails.reduce((sum, row) => sum + row.totalInterest, 0);
+            const monthsSaved = originalMonths - scenarioResult.months;
+            const interestSaved = originalInterest - scenarioResult.totalInterestPaid;
+            
+            const originalTimeFormatted = formatMonthsToYears(originalMonths);
+            const scenarioTimeFormatted = formatMonthsToYears(scenarioResult.months);
+            const savingsTimeFormatted = formatMonthsToYears(monthsSaved);
+
+            scenarioResults.style.display = 'block';
+            scenarioResults.innerHTML = `<h4>Comparison Results:</h4><table><thead><tr><th>Metric</th><th>Original Plan</th><th>New Scenario</th><th>Savings</th></tr></thead><tbody><tr><td><strong>Debt-Free In</strong></td><td>${originalTimeFormatted}</td><td>${scenarioTimeFormatted}</td><td><strong>${savingsTimeFormatted} sooner</strong></td></tr><tr><td><strong>Total Interest Paid</strong></td><td>$${originalInterest.toFixed(2)}</td><td>$${scenarioResult.totalInterestPaid.toFixed(2)}</td><td><strong>You save $${interestSaved.toFixed(2)}</strong></td></tr></tbody></table>`;
+        }
+        
         function renderCharts() { dashboardCard.style.display = 'block'; if (!isPro()) { dashboardCard.innerHTML = `<p><strong>Upgrade to Pro to unlock your Visual Dashboard!</strong></p>`; return; } dashboardCard.innerHTML = `<div class="charts-grid"><div class="chart-container"><h3>Debt Breakdown</h3><canvas id="debtPieChart"></canvas></div><div class="chart-container" id="line-chart-container" style="display: none;"><h3>Payoff Projection</h3><canvas id="debtLineChart"></canvas></div></div>`; const pieChartCanvas = document.getElementById('debtPieChart'); const lineChartCanvas = document.getElementById('debtLineChart'); const lineChartContainer = document.getElementById('line-chart-container'); if (pieChartInstance) pieChartInstance.destroy(); if (lineChartInstance) lineChartInstance.destroy(); if (debts.length > 0) { const pieLabels = debts.map(d => d.name); const pieData = debts.map(d => d.balance); pieChartInstance = new Chart(pieChartCanvas, { type: 'pie', data: { labels: pieLabels, datasets: [{ data: pieData, backgroundColor: ['#007bff', '#dc3545', '#ffc107', '#28a745', '#6f42c1', '#fd7e14', '#20c997'], }] }, options: { responsive: true, maintainAspectRatio: true } }); } if (fullPlanDetails.length > 0) { lineChartContainer.style.display = 'block'; const lineLabels = fullPlanDetails.map(row => `M${row.month}`); lineLabels.unshift("Start"); const lineData = fullPlanDetails.map(row => row.remainingBalance); const startBalance = debts.reduce((sum, d) => sum + d.balance, 0); lineData.unshift(startBalance); lineChartInstance = new Chart(lineChartCanvas, { type: 'line', data: { labels: lineLabels, datasets: [{ label: 'Remaining Balance', data: lineData, borderColor: '#007bff', backgroundColor: 'rgba(0, 123, 255, 0.1)', fill: true, tension: 0.1 }] }, options: { responsive: true, maintainAspectRatio: true } }); } else { lineChartContainer.style.display = 'none'; } }
-        function displayResults(months, totalInterestPaid) { resultsDiv.style.display = 'block'; monthDetailsDiv.style.display = 'none'; const years = Math.floor(months / 12); const remainingMonths = months % 12; resultsSummary.textContent = `You will be debt-free in ${years} years and ${remainingMonths} months! Total interest paid: $${totalInterestPaid.toFixed(2)}.`; planTbody.innerHTML = ''; fullPlanDetails.forEach((row, index) => { const tr = document.createElement('tr'); tr.dataset.index = index; const isPaid = paidMonths.includes(row.month); if(isPaid) tr.classList.add('paid-row'); const actualPaymentThisMonth = row.payments.reduce((sum, p) => sum + p.paymentApplied, 0); let statusCell = `<td><span class="pro-label">Pro</span></td>`; if (isPro()) { const buttonText = isPaid ? 'Unmark' : 'Mark Paid'; const buttonClass = isPaid ? 'toggle-paid-btn unmark' : 'toggle-paid-btn'; statusCell = `<td><button class="${buttonClass}" data-month="${row.month}">${buttonText}</button></td>`; } tr.innerHTML = `<td>${row.month}</td><td>$${actualPaymentThisMonth.toFixed(2)}</td><td>$${row.totalInterest.toFixed(2)}</td><td>$${row.remainingBalance.toFixed(2)}</td>${statusCell}`; planTbody.appendChild(tr); }); }
-        function handlePlanClick(event) { if (event.target.classList.contains('toggle-paid-btn')) { event.stopPropagation(); if (!isPro()) { alert("Progress tracking is a Pro feature. Please upgrade."); return; } const month = parseInt(event.target.dataset.month); toggleMonthPaid(month, true); return; } const row = event.target.closest('tr'); if (!row) return; const monthIndex = parseInt(row.dataset.index); const monthData = fullPlanDetails[monthIndex]; displayMonthDetails(monthData); }
+        function displayResults(months, totalInterestPaid) { resultsDiv.style.display = 'block'; monthDetailsDiv.style.display = 'none'; const years = Math.floor(months / 12); const remainingMonths = months % 12; resultsSummary.textContent = `You will be debt-free in ${years} years and ${remainingMonths} months! Total interest paid: $${totalInterestPaid.toFixed(2)}.`; planTbody.innerHTML = ''; fullPlanDetails.forEach((row, index) => { const tr = document.createElement('tr'); tr.dataset.index = index; const isPaid = paidMonths.includes(row.month); if(isPaid) tr.classList.add('paid-row'); const actualPaymentThisMonth = row.payments.reduce((sum, p) => sum + p.paymentApplied, 0); let statusCell = `<td></td>`; const buttonText = isPaid ? 'Unmark' : 'Mark Paid'; const buttonClass = isPaid ? 'toggle-paid-btn unmark' : 'toggle-paid-btn'; statusCell = `<td><button class="${buttonClass}" data-month="${row.month}">${buttonText}</button></td>`; tr.innerHTML = `<td>${row.month}</td><td>$${actualPaymentThisMonth.toFixed(2)}</td><td>$${row.totalInterest.toFixed(2)}</td><td>$${row.remainingBalance.toFixed(2)}</td>${statusCell}`; planTbody.appendChild(tr); }); if(isPro()){ scenarioPlanner.style.display = 'block'; scenarioResults.style.display = 'none'; } else { scenarioPlanner.style.display = 'none'; } }
+        function handlePlanClick(event) { if (event.target.classList.contains('toggle-paid-btn')) { event.stopPropagation(); const month = parseInt(event.target.dataset.month); toggleMonthPaid(month, true); return; } const row = event.target.closest('tr'); if (!row) return; const monthIndex = parseInt(row.dataset.index); const monthData = fullPlanDetails[monthIndex]; displayMonthDetails(monthData); }
         function toggleMonthPaid(month, isUserAction = false) { const index = paidMonths.indexOf(month); const monthData = fullPlanDetails.find(row => row.month === month); if (!monthData) return; const activePayments = monthData.payments.filter(p => p.paymentApplied > 0.005).map(p => p.name); if (index > -1) { if (isUserAction) { paidProgress[month] = []; } paidMonths.splice(index, 1); } else { if (isUserAction) { paidProgress[month] = activePayments; } paidMonths.push(month); } localStorage.setItem('paidMonths', JSON.stringify(paidMonths)); localStorage.setItem('paidProgress', JSON.stringify(paidProgress)); const totalInterest = fullPlanDetails.reduce((sum, row) => sum + row.totalInterest, 0); displayResults(fullPlanDetails.length, totalInterest); }
         function handlePaymentCheck(event) { if (event.target.type !== 'checkbox') return; const month = parseInt(event.target.dataset.month); const debtName = event.target.dataset.debtName; if (!paidProgress[month]) { paidProgress[month] = []; } const index = paidProgress[month].indexOf(debtName); if (event.target.checked) { if (index === -1) paidProgress[month].push(debtName); } else { if (index > -1) paidProgress[month].splice(index, 1); } localStorage.setItem('paidProgress', JSON.stringify(paidProgress)); const monthData = fullPlanDetails.find(row => row.month === month); const activePaymentsInMonth = monthData.payments.filter(p => p.paymentApplied > 0.005); if (paidProgress[month].length === activePaymentsInMonth.length) { if (!paidMonths.includes(month)) { toggleMonthPaid(month); } } else { if (paidMonths.includes(month)) { toggleMonthPaid(month); } } }
-        function displayMonthDetails(monthData) { monthDetailsDiv.style.display = 'block'; let detailsHtml = `<h4>Details for Month ${monthData.month}</h4><ul>`; monthData.payments.forEach(p => { if (p.paymentApplied > 0.005) { if (isPro()) { const paidInMonth = paidProgress[monthData.month] || []; const isChecked = paidInMonth.includes(p.name); detailsHtml += `<li><input type="checkbox" id="payment-${monthData.month}-${p.name}" data-month="${monthData.month}" data-debt-name="${p.name}" ${isChecked ? 'checked' : ''}><label for="payment-${monthData.month}-${p.name}"><strong>${p.name}:</strong> Pay $${p.paymentApplied.toFixed(2)} (New Balance: $${p.newBalance.toFixed(2)})</label></li>`; } else { detailsHtml += `<li><strong>${p.name}:</strong> Pay $${p.paymentApplied.toFixed(2)} (New Balance: $${p.newBalance.toFixed(2)})</li>`; } } }); detailsHtml += `</ul>`; monthDetailsDiv.innerHTML = detailsHtml; monthDetailsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        function displayMonthDetails(monthData) { monthDetailsDiv.style.display = 'block'; let detailsHtml = `<h4>Details for Month ${monthData.month}</h4><ul>`; monthData.payments.forEach(p => { if (p.paymentApplied > 0.005) { const paidInMonth = paidProgress[monthData.month] || []; const isChecked = paidInMonth.includes(p.name); detailsHtml += `<li><input type="checkbox" id="payment-${monthData.month}-${p.name}" data-month="${monthData.month}" data-debt-name="${p.name}" ${isChecked ? 'checked' : ''}><label for="payment-${monthData.month}-${p.name}"><strong>${p.name}:</strong> Pay $${p.paymentApplied.toFixed(2)} (New Balance: $${p.newBalance.toFixed(2)})</label></li>`; } }); detailsHtml += `</ul>`; monthDetailsDiv.innerHTML = detailsHtml; monthDetailsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
         function saveAndRender() { saveDebts(); renderDebts(); updateGuidance(); initializeState(); }
         function renderDebts() {
             debtList.innerHTML = '';
@@ -398,7 +464,7 @@
                 listItem.dataset.id = debt.id;
                 const isPaid = paidDebtIds.includes(debt.id);
                 if (isPaid) { listItem.classList.add('paid'); }
-                const checkmark = isPro() ? `<span class="mark-paid-btn" title="Mark as Paid Off">✓</span>` : '';
+                const checkmark = `<span class="mark-paid-btn" title="Mark as Paid Off">✓</span>`;
                 listItem.innerHTML = `<div style="display: flex; align-items: center;">${checkmark}<div class="debt-details"><strong>${debt.name}</strong>${isPaid ? '<span class="paid-badge">PAID!</span>' : ''}<br><small>$${debt.balance.toFixed(2)} @ ${debt.apr}% APR (Min: $${debt.minPayment.toFixed(2)})</small></div></div><div class="debt-actions"><button class="edit-btn">Edit</button><button class="delete-btn">Delete</button></div>`;
                 debtList.appendChild(listItem);
             });
