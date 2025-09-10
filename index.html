@@ -165,9 +165,8 @@
         .email-link-mobile p { margin-top: 0; margin-bottom: 0.5rem; font-size: 1rem; color: #555; }
         .email-link-mobile a { font-weight: 600; color: #007bff; }
 
-        /* --- Mobile Responsive Styles --- */
         @media (max-width: 768px) {
-            .nav-links { display: none; } /* Hide links for a cleaner mobile nav, can be replaced by a menu icon later */
+            .nav-links { display: none; }
             .navbar { justify-content: center; }
             .nav-brand { margin-right: 0; }
             .hero h1 { font-size: 2.2rem; }
@@ -180,9 +179,17 @@
             .email-link-mobile { display: block; }
         }
     </style>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-R12C8R93T1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-R12C8R93T1');
+    </script>
 </head>
 <body>
-
     <nav class="navbar">
         <div class="nav-brand">
             <a href="index.html">
@@ -201,7 +208,6 @@
             <p>The best free alternative to a complex debt spreadsheet. Create a clear payoff plan using the Snowball or Avalanche method.</p>
             <a href="app.html" class="cta-button">Launch the Free Tool</a>
             <p class="cta-subtitle">No signup required. 100% free (up to 5 debts).</p>
-
             <div class="email-link-mobile">
                 <p>Best on a desktop? We can send you a link to use later.</p>
                 <a href="mailto:?subject=Link%20to%20the%20Private%20Debt%20Payoff%20Planner&body=Here's%20the%20link%20to%20the%20debt%20planner%20you%20wanted%20to%20check%20out%20on%20your%20desktop%3A%20https%3A//privatedebtplanner.com">
