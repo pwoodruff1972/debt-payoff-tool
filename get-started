@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Started Guide | Debt Payoff Planner</title>
+    <meta name="description" content="Learn how to use the Debt Payoff Planner to create your personalized debt-free plan in just a few simple steps.">
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.7;
+        }
+        .navbar {
+            background-color: #fff;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 2rem;
+        }
+        .article-header {
+            text-align: center;
+            padding: 3rem 1rem;
+            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 2rem;
+        }
+        .article-header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 0.5rem;
+        }
+        .article-content h2 {
+            font-size: 2rem;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 0.5rem;
+            margin-top: 2.5rem;
+        }
+        .article-content p, .article-content li {
+            font-size: 1.1rem;
+        }
+        .article-content ol {
+            padding-left: 20px;
+        }
+        .screenshot {
+            width: 100%;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .cta-box {
+            background-color: #e6f7ff;
+            border: 1px solid #91d5ff;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+        .cta-button {
+            background-color: #007bff;
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+            display: inline-block;
+            margin-top: 1rem;
+        }
+        .cta-button:hover {
+            background-color: #0056b3;
+        }
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 2rem;
+            color: #888;
+            font-size: 0.9rem;
+            border-top: 1px solid #e9ecef;
+        }
+        .footer-links {
+            margin-top: 0.5rem;
+        }
+        .footer-links a {
+            color: #6c757d;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        .pro-label { font-size: 0.8em; background-color: #007bff; color: white; padding: 2px 5px; border-radius: 3px; margin-left: 5px; display: inline-block; vertical-align: middle; }
+        
+        @media (max-width: 768px) {
+            .article-header h1 { font-size: 2rem; }
+            .article-content h2 { font-size: 1.5rem; }
+            .container { padding: 1.5rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html">
+            <img src="logo.svg" alt="Debt Payoff Planner Logo" style="height: 40px;">
+        </a>
+    </nav>
+
+    <div class="container">
+        <header class="article-header">
+            <h1>Get Started Guide</h1>
+            <p>Welcome! This guide will walk you through creating your personalized debt payoff plan in just a few simple steps.</p>
+        </header>
+
+        <article class="article-content">
+            <h2>Step 1: Add Your Debts</h2>
+            <p>The first step is to list all of your current debts. Our tool is 100% private, so this information is only saved to your browser and never seen by us.</p>
+            <ol>
+                <li>Fill in the **Debt Name**, **Current Balance**, **Interest Rate (APR)**, and **Minimum Monthly Payment**.</li>
+                <li>Click the **"Add Debt"** button.</li>
+                <li>Repeat this for all your debts. The free version allows up to 5 debts.</li>
+            </ol>
+            <img src="https://raw.githubusercontent.com/pwoodruff1972/debt-payoff-tool/main/images/guide-step1.png" alt="Add Debt form" class="screenshot">
+
+            <h2>Step 2: Create Your Payoff Plan</h2>
+            <p>Once your debts are listed, you're ready to create your plan.</p>
+            <ol>
+                <li>Choose your preferred strategy: **Debt Snowball** (for motivation) or **Debt Avalanche** (to save the most on interest). Both are free to use.</li>
+                <li>Set your **Total Monthly Payment** budget. This is the total amount you can afford to put towards all your debts each month.</li>
+                <li>Click the **"Calculate Plan"** button.</li>
+            </ol>
+            <p>Your full, month-by-month payment schedule will instantly appear below!</p>
+            <img src="https://raw.githubusercontent.com/pwoodruff1972/debt-payoff-tool/main/images/guide-step2.png" alt="Payoff Plan Schedule" class="screenshot">
+
+            <h2>Step 3: Track Your Progress</h2>
+            <p>Staying motivated is key! Our tool includes interactive progress tracking to help you celebrate your wins.</p>
+            <ul>
+                <li>**Mark a Debt as Paid Off:** When you completely pay off a debt, click the **✓** in the main debt list to get that satisfying "PAID!" badge. The tool will automatically roll that debt's payment into your snowball.</li>
+                <li>**Track Monthly Payments:** In your payment schedule, click the **"Mark Paid"** button for each month you complete to create a visual record of your journey.</li>
+            </ul>
+             <img src="https://raw.githubusercontent.com/pwoodruff1972/debt-payoff-tool/main/images/Guide-step3.png" alt="Progress Tracking Features" class="screenshot">
+
+            <h2>Step 4: Unlock Advanced Insights with Pro</h2>
+            <p>The Pro version unlocks powerful features for users who want to take their financial planning to the next level.</p>
+            
+            <h3>Visualize Your Journey with the Dashboard <span class="pro-label">Pro</span></h3>
+            <p>The Pro Dashboard gives you two powerful charts: a **Pie Chart** to see your debt breakdown and a **Line Chart** that projects your balance dropping to zero. It's the ultimate motivational tool.</p>
+             <img src="https://raw.githubusercontent.com/pwoodruff1972/debt-payoff-tool/main/images/guide-step4.png" alt="Pro Dashboard Charts" class="screenshot">
+            
+            <h3>Find the Fastest Path with the "What If" Scenario Planner <span class="pro-label">Pro</span></h3>
+            <p>Instantly see how your decisions impact your debt-free date. The "What If" planner lets you compare your original plan to scenarios where you add an extra monthly payment or make a one-time lump sum payment, showing you exactly how much time and money you'll save.</p>
+            <img src="https://raw.githubusercontent.com/pwoodruff1972/debt-payoff-tool/main/images/guide-step5.png" alt="What If Scenario Planner" class="screenshot">
+
+            <div class="cta-box">
+                <h2>Ready to Build Your Plan?</h2>
+                <p>You have everything you need to start. Click the button below to launch the tool and take the first step towards financial freedom.</p>
+                <a href="app.html" class="cta-button">Launch the Free Tool</a>
+            </div>
+        </article>
+    </div>
+
+    <footer class="footer">
+        <div>&copy; 2025 Debt Payoff Planner</div>
+        <div class="footer-links">
+            <a href="contact.html">Contact</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="terms.html">Terms of Service</a>
+        </div>
+    </footer>
+
+</body>
+</html>
+
