@@ -227,7 +227,7 @@
         const scenarioResults = document.getElementById('scenario-results');
 
         let debts = JSON.parse(localStorage.getItem('debts')) || [];
-        let fullPlanDetails = [];
+        let fullPlanDetails = JSON.parse(localStorage.getItem('fullPlanDetails')) || [];
         let paidMonths = JSON.parse(localStorage.getItem('paidMonths')) || [];
         let paidDebtIds = JSON.parse(localStorage.getItem('paidDebtIds')) || [];
         let pieChartInstance = null;
@@ -306,7 +306,7 @@
         editModal.addEventListener('click', (event) => { if (event.target === editModal) { closeEditModal(); } });
         compareBtn.addEventListener('click', runScenario);
 
-        function exportData() { if (debts.length === 0) { return; } const dataToExport = { debts, paidMonths, budget: totalPaymentInput.value, proKey: localStorage.getItem('debtToolProKey'), proUnlockDate: localStorage.getItem('proUnlockDate'), paidDebtIds, paidProgress }; const dataStr = JSON.stringify(dataToExport, null, 2); const dataBlob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(dataBlob); const link = document.createElement('a'); link.href = url; link.download = `my-debt-plan-${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); }
+        function exportData() { if (debts.length === 0) { return; } const dataToExport = { debts, paidMonths, budget: totalPaymentInput.value, proKey: localStorage.getItem('debtToolProKey'), proUnlockDate: localStorage.getItem('proUnlockDate'), paidDebtIds, paidProgress, fullPlanDetails }; const dataStr = JSON.stringify(dataToExport, null, 2); const dataBlob = new Blob([dataStr], { type: "application/json" }); const url = URL.createObjectURL(dataBlob); const link = document.createElement('a'); link.href = url; link.download = `my-debt-plan-${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); }
         
         function importData(event) {
             const file = event.target.files[0];
@@ -317,7 +317,7 @@
                     const importedData = JSON.parse(e.target.result);
                     if (Array.isArray(importedData)) {
                         debts = importedData;
-                        paidMonths = []; paidDebtIds = []; paidProgress = {};
+                        paidMonths = []; paidDebtIds = []; paidProgress = {}; fullPlanDetails = [];
                         totalPaymentInput.value = '';
                         alert("Old data format imported successfully! Your Pro status has been preserved. Please set your budget and calculate a new plan.");
                     } else if (importedData && Array.isArray(importedData.debts)) {
@@ -326,6 +326,7 @@
                         paidDebtIds = importedData.paidDebtIds || [];
                         paidProgress = importedData.paidProgress || {};
                         totalPaymentInput.value = importedData.budget || '';
+                        fullPlanDetails = importedData.fullPlanDetails || [];
 
                         const currentKey = localStorage.getItem('debtToolProKey');
                         const importedKey = importedData.proKey;
@@ -338,7 +339,7 @@
                             localStorage.setItem('proUnlockDate', importedDate);
                         }
                         
-                        alert("Data imported successfully! Click 'Calculate Plan' to see your new schedule.");
+                        alert("Data imported successfully!");
                     } else { throw new Error("Invalid file format."); }
                     saveAndRender();
                 } catch (error) { alert("Error reading file."); }
@@ -364,7 +365,7 @@
             debtForm.reset();
         }
         function handleListClick(event) { const target = event.target; const listItem = target.closest('li'); if (!listItem) return; const id = parseInt(listItem.dataset.id); if (target.classList.contains('delete-btn')) { debts = debts.filter(debt => debt.id !== id); resetPlanAndProgress(); saveAndRender(); } if (target.classList.contains('mark-paid-btn')) { toggleDebtPaid(id); } if (target.classList.contains('edit-btn')) { openEditModal(id); } }
-        function resetPlanAndProgress() { paidMonths = []; paidDebtIds = []; paidProgress = {}; localStorage.removeItem('paidMonths'); localStorage.removeItem('paidDebtIds'); localStorage.removeItem('paidProgress'); resultsDiv.style.display = 'none'; if (lineChartInstance) { lineChartInstance.destroy(); lineChartInstance = null; } renderCharts(); }
+        function resetPlanAndProgress() { paidMonths = []; paidDebtIds = []; paidProgress = {}; fullPlanDetails = []; localStorage.removeItem('paidMonths'); localStorage.removeItem('paidDebtIds'); localStorage.removeItem('paidProgress'); localStorage.removeItem('fullPlanDetails'); resultsDiv.style.display = 'none'; if (lineChartInstance) { lineChartInstance.destroy(); lineChartInstance = null; } renderCharts(); }
         function toggleDebtPaid(debtId) { const index = paidDebtIds.indexOf(debtId); if (index > -1) { paidDebtIds.splice(index, 1); } else { paidDebtIds.push(debtId); } localStorage.setItem('paidDebtIds', JSON.stringify(paidDebtIds)); saveAndRender(); }
         
         function openEditModal(debtId) { const debtToEdit = debts.find(debt => debt.id === debtId); if (!debtToEdit) return; document.getElementById('edit-debt-id').value = debtToEdit.id; document.getElementById('edit-debt-name').value = debtToEdit.name; document.getElementById('edit-debt-balance').value = debtToEdit.balance; document.getElementById('edit-debt-apr').value = debtToEdit.apr; document.getElementById('edit-debt-min-payment').value = debtToEdit.minPayment; editModal.style.display = 'flex'; }
@@ -456,6 +457,8 @@
                 return { months, totalInterestPaid };
             } else {
                 fullPlanDetails = tempPlanDetails;
+                localStorage.setItem('fullPlanDetails', JSON.stringify(fullPlanDetails));
+                localStorage.setItem('monthlyBudget', baseMonthlyPayment);
                 displayResults(months, totalInterestPaid);
                 renderCharts();
             }
@@ -514,7 +517,20 @@
         }
         function saveDebts() { localStorage.setItem('debts', JSON.stringify(debts)); }
         function updateGuidance() { const totalMinimums = debts.reduce((sum, debt) => sum + debt.minPayment, 0); if (totalMinimums > 0) { minPaymentGuidance.textContent = `Your total minimum payment is $${totalMinimums.toFixed(2)}. Pay more to get out of debt faster!`; } else { minPaymentGuidance.textContent = 'Enter your debts to see your minimum monthly payment.'; } }
-        function initializeState() { const savedBudget = localStorage.getItem('monthlyBudget'); if (savedBudget) { totalPaymentInput.value = savedBudget; } updateUIForProStatus(); if (savedBudget && debts.length > 0) { calculatePlan(); } }
+        function initializeState() {
+            const savedBudget = localStorage.getItem('monthlyBudget');
+            if (savedBudget) {
+                totalPaymentInput.value = savedBudget;
+            }
+            updateUIForProStatus();
+
+            fullPlanDetails = JSON.parse(localStorage.getItem('fullPlanDetails')) || [];
+            if (fullPlanDetails.length > 0) {
+                const totalInterest = fullPlanDetails.reduce((sum, row) => sum + row.totalInterest, 0);
+                displayResults(fullPlanDetails.length, totalInterest);
+                renderCharts();
+            }
+        }
         
         saveAndRender();
     });
