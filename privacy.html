@@ -3,19 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy - Debt Payoff Planner</title>
-     <style>
+    <title>Privacy Policy | Debt Payoff Planner</title>
+    <style>
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             margin: 0;
             background-color: #f8f9fa;
             color: #333;
-            line-height: 1.6;
+            line-height: 1.7;
         }
         .navbar {
             background-color: #fff;
             padding: 1rem 2rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -25,15 +28,30 @@
             margin: auto;
             padding: 2rem;
         }
+        .page-header {
+            text-align: center;
+            padding: 3rem 1rem;
+            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 2rem;
+        }
+        .page-header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 0.5rem;
+        }
         .content-box {
             background-color: #fff;
-            padding: 2rem;
+            border: 1px solid #dee2e6;
             border-radius: 8px;
-            border: 1px solid #e9ecef;
+            padding: 2rem;
         }
-        h1 {
-            text-align: center;
-            margin-bottom: 2rem;
+        .content-box h2 {
+            font-size: 1.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+            margin-top: 1.5rem;
+        }
+        .content-box p, .content-box li {
+            font-size: 1.1rem;
         }
         .footer {
             text-align: center;
@@ -43,6 +61,9 @@
             font-size: 0.9rem;
             border-top: 1px solid #e9ecef;
         }
+        .footer-links {
+            margin-top: 0.5rem;
+        }
         .footer-links a {
             color: #6c757d;
             text-decoration: none;
@@ -51,7 +72,20 @@
         .footer-links a:hover {
             text-decoration: underline;
         }
+        @media (max-width: 768px) {
+            .page-header h1 { font-size: 2rem; }
+            .container { padding: 1.5rem 1rem; }
+        }
     </style>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-R12C8R93T1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-R12C8R93T1');
+    </script>
 </head>
 <body>
 
@@ -62,37 +96,29 @@
     </nav>
 
     <div class="container">
-        <h1>Privacy Policy</h1>
-        <div class="content-box">
-            <p><strong>Last Updated:</strong> September 10, 2025</p>
+        <header class="page-header">
+            <h1>Privacy Policy</h1>
+            <p>Last updated: September 10, 2025</p>
+        </header>
 
-            <p>Your privacy is our top priority. This Privacy Policy explains our commitment to protecting your data when you use the Debt Payoff Planner website and tool.</p>
+        <main class="content-box">
+            <p>Your privacy is our top priority. This Privacy Policy explains our principles regarding the collection, use, and disclosure of your information.</p>
 
-            <h3>The Core Principle: We Don't Collect Your Data</h3>
-            <p>The Debt Payoff Planner is a client-side application. This means it runs entirely within your web browser on your own computer. We have designed the tool so that we do not have user accounts, servers, or databases to store your personal or financial information.</p>
+            <h2>The Core Principle: We Don't Collect Your Data</h2>
+            <p>The Debt Payoff Planner is a client-side application. This means that all the data you enter—including your debt names, balances, interest rates, and payment plans—is stored **only on your local device** within your web browser's storage. Your financial information is never sent to, stored on, or seen by our servers. We have no access to your data.</p>
             
-            <h3>Information You Provide</h3>
-            <p>Any financial data you enter into the tool—such as debt names, balances, interest rates, or payment amounts—is stored exclusively on your own device using your browser's Local Storage. This data is **never** transmitted to, or stored on, our servers. We do not have access to it.</p>
-            <p>If you choose to use the "Export to File" feature, your data is saved as a file directly on your computer. You have full control over that file.</p>
+            <h2>Information We Collect</h2>
+            <p>We use Google Analytics to collect anonymous usage data to help us understand how our visitors use the site and to improve our service. This data is aggregated and does not contain any personally identifiable information. We do not track you across other websites.</p>
 
-            <h3>Third-Party Services</h3>
-            <p>
-                <strong>Website Hosting:</strong> Our website is hosted on Netlify. Netlify may collect standard, anonymous analytics data, such as the number of visitors to our site.
-            </p>
-             <p>
-                <strong>Payments:</strong> If you choose to upgrade to the Pro version, your payment is processed by Gumroad, a secure third-party payment processor. We do not receive or store your credit card information. Your transaction is subject to Gumroad's privacy policy.
-            </p>
+            <h2>License Keys</h2>
+            <p>If you purchase a Pro license, your license key is also stored in your browser's local storage to unlock pro features. We do not link this key to any personal information on our end.</p>
 
-            <h3>Contacting Us</h3>
-            <p>If you contact us via email, we will use your email address solely to respond to your inquiry. We will not sell your email address or add you to any marketing lists without your explicit consent.</p>
+            <h2>Changes to This Privacy Policy</h2>
+            <p>We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page.</p>
 
-            <h3>Changes to This Policy</h3>
-            <p>We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new policy on this page.</p>
-
-            <h3>Questions?</h3>
-            <p>If you have any questions about this Privacy Policy, please contact us at <a href="mailto:support@privatedebtplanner.com">support@privatedebtplanner.com</a>.</p>
-
-        </div>
+            <h2>Contact Us</h2>
+            <p>If you have any questions about this Privacy Policy, you can contact us by email: <a href="mailto:support@privatedebtplanner.com">support@privatedebtplanner.com</a></p>
+        </main>
     </div>
 
     <footer class="footer">
