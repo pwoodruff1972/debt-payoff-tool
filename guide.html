@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Debt Snowball vs. Debt Avalanche | Debt Payoff Planner</title>
-    <meta name="description" content="A complete guide to understanding the Debt Snowball and Debt Avalanche methods. Learn which strategy is right for you to get out of debt faster.">
+    <meta name="description" content="Learn the difference between the Debt Snowball and Debt Avalanche methods and find out which strategy is the right choice for your financial situation.">
     <style>
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -15,14 +15,14 @@
         }
         .navbar {
             background-color: #fff;
-            padding: 1.2rem 2rem;
-            font-weight: 600;
-            text-align: center;
-            font-size: 1.25rem;
+            padding: 1rem 2rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             position: sticky;
             top: 0;
             z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         .container {
             max-width: 800px;
@@ -31,55 +31,46 @@
         }
         .article-header {
             text-align: center;
-            padding: 3rem 1rem 1rem 1rem;
+            padding: 3rem 1rem;
+            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 2rem;
         }
         .article-header h1 {
             font-size: 2.8rem;
             margin-bottom: 0.5rem;
         }
-        .article-content {
-            background-color: #fff;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
         .article-content h2 {
             font-size: 2rem;
             border-bottom: 2px solid #007bff;
             padding-bottom: 0.5rem;
-            margin-top: 2rem;
-        }
-        .article-content h3 {
-            font-size: 1.5rem;
-            color: #0056b3;
+            margin-top: 2.5rem;
         }
         .article-content p, .article-content li {
             font-size: 1.1rem;
         }
-        .pros-cons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
+        .article-content ul {
+            padding-left: 20px;
         }
-        .pros ul, .cons ul {
-            list-style: none;
-            padding: 0;
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
         }
-        .pros li::before {
-            content: '✅';
-            margin-right: 10px;
+        .comparison-table th, .comparison-table td {
+            border: 1px solid #dee2e6;
+            padding: 1rem;
+            text-align: left;
         }
-        .cons li::before {
-            content: '❌';
-            margin-right: 10px;
+        .comparison-table th {
+            background-color: #e9ecef;
         }
-        .cta-section {
+        .cta-box {
             background-color: #e6f7ff;
             border: 1px solid #91d5ff;
-            text-align: center;
-            padding: 2.5rem 1.5rem;
-            margin-top: 3rem;
             border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
         }
         .cta-button {
             background-color: #007bff;
@@ -91,6 +82,7 @@
             border-radius: 8px;
             transition: background-color 0.2s;
             display: inline-block;
+            margin-top: 1rem;
         }
         .cta-button:hover {
             background-color: #0056b3;
@@ -101,111 +93,112 @@
             margin-top: 2rem;
             color: #888;
             font-size: 0.9rem;
+            border-top: 1px solid #e9ecef;
+        }
+        .footer-links {
+            margin-top: 0.5rem;
         }
         .footer-links a {
             color: #6c757d;
             text-decoration: none;
             margin: 0 10px;
         }
-
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
         @media (max-width: 768px) {
             .article-header h1 { font-size: 2rem; }
-            .article-content { padding: 1.5rem; }
-            .pros-cons { grid-template-columns: 1fr; }
+            .article-content h2 { font-size: 1.5rem; }
+            .container { padding: 1.5rem 1rem; }
         }
     </style>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-R12C8R93T1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-R12C8R93T1');
+    </script>
 </head>
 <body>
 
     <nav class="navbar">
-        <a href="index.html" style="text-decoration: none; color: inherit;">Debt Payoff Planner</a>
+        <a href="index.html">
+            <img src="logo.svg" alt="Debt Payoff Planner Logo" style="height: 40px;">
+        </a>
     </nav>
 
     <div class="container">
         <header class="article-header">
             <h1>Debt Snowball vs. Debt Avalanche</h1>
-            <p>A complete guide to choosing the right debt payoff strategy for you.</p>
+            <p>Two popular strategies, one goal: becoming debt-free. Learn the difference and discover which method is the right choice for you.</p>
         </header>
 
         <article class="article-content">
-            <p>Choosing a strategy is the most powerful step you can take to get out of debt. Instead of just making minimum payments and hoping for the best, a strategy gives you a clear plan and a target to focus on. The two most popular and effective methods are the Debt Snowball and the Debt Avalanche. Let's break them down.</p>
-
-            <h2>The Debt Snowball Method</h2>
-            <p>The Debt Snowball method focuses on momentum and motivation. The idea is to pay off your smallest debts first, regardless of their interest rates, to score quick wins and build confidence.</p>
-            <h3>How It Works</h3>
-            <ol>
-                <li>List all of your debts from the smallest balance to the largest.</li>
-                <li>Make the minimum payment on every debt.</li>
-                <li>Put every extra dollar you have towards the smallest debt until it's paid off.</li>
-                <li>Once the smallest debt is gone, take all the money you were paying on it (its minimum payment plus your extra payment) and roll it into the payment for the *next* smallest debt.</li>
-                <li>Repeat this process. As you pay off each debt, your "snowball" of payment money grows larger, knocking out the bigger debts faster and faster.</li>
-            </ol>
-            <div class="pros-cons">
-                <div class="pros">
-                    <h3>Pros</h3>
-                    <ul>
-                        <li><strong>Highly Motivating:</strong> Scoring quick wins by closing accounts provides powerful psychological reinforcement to keep going.</li>
-                        <li><strong>Builds Habits:</strong> The feeling of progress helps build and maintain the habit of making extra payments.</li>
-                    </ul>
-                </div>
-                <div class="cons">
-                    <h3>Cons</h3>
-                    <ul>
-                        <li><strong>Costs More:</strong> Because you aren't prioritizing high-interest debts, you will likely pay more in total interest over the life of your loans.</li>
-                    </ul>
-                </div>
-            </div>
-
-            <h2>The Debt Avalanche Method</h2>
-            <p>The Debt Avalanche method is the purely mathematical approach. It focuses on paying off your debts with the highest interest rates (APR) first, which saves you the most money over time.</p>
-            <h3>How It Works</h3>
-            <ol>
-                <li>List all of your debts from the highest APR to the lowest.</li>
-                <li>Make the minimum payment on every debt.</li>
-                <li>Put every extra dollar you have towards the debt with the highest interest rate.</li>
-                <li>Once that debt is gone, roll all the money you were paying on it into the payment for the debt with the *next* highest APR.</li>
-                <li>Repeat this process until you are debt-free.</li>
-            </ol>
-            <div class="pros-cons">
-                <div class="pros">
-                    <h3>Pros</h3>
-                    <ul>
-                        <li><strong>Saves the Most Money:</strong> This is the mathematically optimal strategy. It guarantees you will pay the least amount of interest possible.</li>
-                        <li><strong>Fastest Overall Payoff:</strong> By reducing the amount of interest you pay, you can become debt-free slightly faster than with the Snowball method.</li>
-                    </ul>
-                </div>
-                <div class="cons">
-                    <h3>Cons</h3>
-                    <ul>
-                        <li><strong>Can Feel Slower:</strong> If your highest-interest debt also has a very large balance, it can take a long time to pay it off, which can be discouraging.</li>
-                    </ul>
-                </div>
-            </div>
-
-            <h2>Which Method is Right for You?</h2>
-            <p>The best method is the one you will actually stick with.</p>
+            <h2>What is the Debt Snowball Method?</h2>
+            <p>The Debt Snowball method is a strategy that focuses on psychology and motivation. You list all of your debts from the smallest balance to the largest, regardless of their interest rates. You make the minimum payment on all your debts, but you throw every extra dollar you have at the smallest debt until it's gone.</p>
+            <p>Once that smallest debt is paid off, you take the money you were paying on it (its minimum payment plus your extra payment) and roll it over to the next-smallest debt. This creates a "snowball" effect—as you pay off debts, your monthly payment for the target debt gets larger and larger, helping you knock out the remaining debts faster and faster.</p>
             <ul>
-                <li>If you need **motivation and quick wins** to stay on track, the **Debt Snowball** is probably the best choice for you.</li>
-                <li>If you are highly disciplined and want to **save the most money possible**, the **Debt Avalanche** is the superior financial choice.</li>
+                <li><strong>Best for:</strong> People who need quick wins to stay motivated.</li>
+                <li><strong>Key Benefit:</strong> Strong psychological and emotional boost.</li>
             </ul>
-            <p>Our tool lets you compare both! You can switch between the strategies to see how each one impacts your payoff date and the total interest you'll pay.</p>
 
-            <div class="cta-section">
+            <h2>What is the Debt Avalanche Method?</h2>
+            <p>The Debt Avalanche method is a strategy that focuses purely on mathematics. You list all of your debts from the highest interest rate (APR) to the lowest, regardless of their balance. You make the minimum payment on all your debts, but you throw every extra dollar you have at the debt with the highest interest rate.</p>
+            <p>Once that high-interest debt is paid off, you roll all the money you were paying on it over to the debt with the next-highest interest rate. While it might take longer to get your first "win," this method is guaranteed to save you the most money on interest over the life of your loans.</p>
+            <ul>
+                <li><strong>Best for:</strong> People who are disciplined and want to save the maximum amount of money.</li>
+                <li><strong>Key Benefit:</strong> Pay the least amount of interest possible.</li>
+            </ul>
+
+            <h2>Side-by-Side Comparison</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Debt Snowball</th>
+                        <th>Debt Avalanche</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Focus</strong></td>
+                        <td>Pay off smallest balance first</td>
+                        <td>Pay off highest interest rate first</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Advantage</strong></td>
+                        <td>High motivation, quick psychological wins</td>
+                        <td>Saves the most money on interest</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Best For</strong></td>
+                        <td>Staying motivated and building momentum</td>
+                        <td>Maximizing financial savings</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="cta-box">
                 <h2>Ready to See Your Own Numbers?</h2>
-                <p>Stop wondering and start planning. Use our free, private tool to enter your debts and see how these strategies work for you.</p>
+                <p>The best way to choose is to see how each strategy works with your actual debts. Use our free, 100% private calculator to compare both methods and create your personal payoff plan.</p>
                 <a href="app.html" class="cta-button">Launch the Free Tool</a>
             </div>
+
         </article>
     </div>
 
     <footer class="footer">
         <div>&copy; 2025 Debt Payoff Planner</div>
         <div class="footer-links">
-            <a href="mailto:support@example.com">Contact</a>
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
+            <a href="contact.html">Contact</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="terms.html">Terms of Service</a>
         </div>
     </footer>
 
 </body>
 </html>
+
