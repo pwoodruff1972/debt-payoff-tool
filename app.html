@@ -84,7 +84,7 @@
             <p id="upgrade-message" style="font-size: 14px; color: #555; margin-top: 0;">Unlock powerful features to accelerate your debt-free journey:</p>
             <ul>
                 <li>✅ Add Unlimited Debts</li>
-                <li>✅ Access visual charts and graphs</li>
+                <li>✅ Access Visual Dashboard & Charts</li>
                 <li>✅ "What If" Scenario Planner</li>
             </ul>
             <div>
@@ -215,7 +215,6 @@
         const licenseKeyInput = document.getElementById('license-key-input');
         const unlockBtn = document.getElementById('unlock-btn');
         const avalancheRadio = document.getElementById('avalanche-radio');
-        const avalancheLabel = document.getElementById('avalanche-label');
         const dashboardContainer = document.getElementById('dashboard-container');
         const dashboardCard = document.getElementById('dashboard-card');
         const upgradeMessage = document.getElementById('upgrade-message');
@@ -376,7 +375,6 @@
             const { extraPayment = 0, lumpSum = 0, lumpSumMonth = -1 } = scenarioParams;
             const baseMonthlyPayment = parseFloat(totalPaymentInput.value);
             const totalMinimums = debts.reduce((sum, debt) => sum + debt.minPayment, 0);
-
             if (!isScenario && debts.length === 0) { alert("Please add at least one debt."); return; }
             if (!isScenario && (isNaN(baseMonthlyPayment) || baseMonthlyPayment <= 0)) { alert("Please enter a valid total monthly payment."); return; }
             if (!isScenario && baseMonthlyPayment < totalMinimums) { 
