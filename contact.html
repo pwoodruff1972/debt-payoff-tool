@@ -3,19 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Us - Debt Payoff Planner</title>
+    <title>Contact Us | Debt Payoff Planner</title>
     <style>
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             margin: 0;
             background-color: #f8f9fa;
             color: #333;
-            line-height: 1.6;
+            line-height: 1.7;
         }
         .navbar {
             background-color: #fff;
             padding: 1rem 2rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -25,15 +28,28 @@
             margin: auto;
             padding: 2rem;
         }
+        .page-header {
+            text-align: center;
+            padding: 3rem 1rem;
+            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 2rem;
+        }
+        .page-header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 0.5rem;
+        }
         .content-box {
             background-color: #fff;
-            padding: 2rem;
+            border: 1px solid #dee2e6;
             border-radius: 8px;
-            border: 1px solid #e9ecef;
+            padding: 2rem;
         }
-        h1 {
-            text-align: center;
-            margin-bottom: 2rem;
+        .content-box p {
+            font-size: 1.1rem;
+        }
+        .content-box a {
+            font-weight: 600;
+            color: #007bff;
         }
         .footer {
             text-align: center;
@@ -43,6 +59,9 @@
             font-size: 0.9rem;
             border-top: 1px solid #e9ecef;
         }
+        .footer-links {
+            margin-top: 0.5rem;
+        }
         .footer-links a {
             color: #6c757d;
             text-decoration: none;
@@ -51,7 +70,20 @@
         .footer-links a:hover {
             text-decoration: underline;
         }
+        @media (max-width: 768px) {
+            .page-header h1 { font-size: 2rem; }
+            .container { padding: 1.5rem 1rem; }
+        }
     </style>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-R12C8R93T1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-R12C8R93T1');
+    </script>
 </head>
 <body>
 
@@ -62,21 +94,18 @@
     </nav>
 
     <div class="container">
-        <h1>Contact Us</h1>
-        <div class="content-box">
-            <p>Thank you for using the Debt Payoff Planner! We value your feedback and are here to help with any questions you may have.</p>
-            
-            <h3>Feedback & Suggestions</h3>
-            <p>Have an idea for a new feature or an improvement? We'd love to hear it! Your feedback helps us make the tool better for everyone.</p>
+        <header class="page-header">
+            <h1>Contact Us</h1>
+            <p>We'd love to hear from you. Please feel free to reach out with any questions, feedback, or suggestions.</p>
+        </header>
 
-            <h3>Support</h3>
-            <p>If you're experiencing a technical issue or have a question about how to use the tool, please don't hesitate to reach out.</p>
-
-            <p><strong>The best way to contact us is by email:</strong></p>
+        <main class="content-box">
+            <h2>Get in Touch</h2>
+            <p>For general inquiries, support questions, or feedback, the best way to reach us is by email.</p>
+            <p>Please send your message to:</p>
             <p><a href="mailto:support@privatedebtplanner.com">support@privatedebtplanner.com</a></p>
-
             <p>We do our best to respond to all inquiries within 1-2 business days.</p>
-        </div>
+        </main>
     </div>
 
     <footer class="footer">
