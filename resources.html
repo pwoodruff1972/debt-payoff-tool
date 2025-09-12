@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- SEO Optimized Title -->
-    <title>Debt Payoff Planner | Free Debt Spreadsheet Alternative</title>
-    <!-- SEO Meta Description -->
-    <meta name="description" content="The best free alternative to a debt spreadsheet. Use our powerful desktop debt planner to create a payoff plan with the Snowball or Avalanche method. 100% private, no signup required.">
+    <title>Financial Resources Guide | Debt Payoff Planner</title>
+    <meta name="description" content="Learn about powerful financial tools like High-Yield Savings Accounts (HYSAs) and Balance Transfer Credit Cards to accelerate your debt-free journey.">
     <style>
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             margin: 0;
             background-color: #f8f9fa;
             color: #333;
-            line-height: 1.6;
+            line-height: 1.7;
         }
         .navbar {
             background-color: #fff;
@@ -23,57 +21,50 @@
             top: 0;
             z-index: 1000;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
-        }
-        .nav-brand a {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-        }
-        .nav-links {
-            display: flex;
-            align-items: center;
-        }
-        .nav-link {
-            text-decoration: none;
-            color: #333;
-            font-weight: 600;
-            margin-left: 2rem;
-            font-size: 1rem;
-        }
-        .nav-button {
-            background-color: #007bff;
-            color: white;
-            padding: 0.5rem 1rem;
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 600;
-            border-radius: 8px;
-            transition: background-color 0.2s;
-            margin-left: 2rem;
-        }
-        .nav-button:hover {
-            background-color: #0056b3;
         }
         .container {
-            max-width: 960px;
+            max-width: 800px;
             margin: auto;
             padding: 2rem;
         }
-        .hero {
+        .page-header {
             text-align: center;
-            padding: 4rem 1rem;
+            padding: 3rem 1rem;
+            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 2rem;
         }
-        .hero h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
+        .page-header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 0.5rem;
         }
-        .hero p {
-            font-size: 1.25rem;
-            color: #555;
-            max-width: 600px;
-            margin: 0 auto 2rem auto;
+        .resource-section {
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .resource-section h2 {
+            font-size: 2rem;
+            margin-top: 0;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 0.5rem;
+        }
+        .resource-section p, .resource-section li {
+            font-size: 1.1rem;
+        }
+        .resource-section ul {
+            padding-left: 20px;
+        }
+        .cta-box {
+            background-color: #e6f7ff;
+            border: 1px solid #91d5ff;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
         }
         .cta-button {
             background-color: #007bff;
@@ -85,34 +76,10 @@
             border-radius: 8px;
             transition: background-color 0.2s;
             display: inline-block;
+            margin-top: 1rem;
         }
         .cta-button:hover {
             background-color: #0056b3;
-        }
-        .cta-subtitle {
-            font-size: 0.9rem;
-            color: #6c757d;
-            margin-top: 0.5rem;
-        }
-        .features {
-            display: flex;
-            gap: 2rem;
-            margin-top: 4rem;
-            padding-top: 2rem;
-            border-top: 1px solid #e9ecef;
-        }
-        .feature-item {
-            flex: 1;
-            text-align: center;
-        }
-        .feature-icon {
-            width: 50px;
-            height: 50px;
-            margin-bottom: 1rem;
-            color: #007bff;
-        }
-        .feature-item h3 {
-            font-size: 1.5rem;
         }
         .footer {
             text-align: center;
@@ -133,71 +100,9 @@
         .footer-links a:hover {
             text-decoration: underline;
         }
-        .learn-more {
-            margin-top: 4rem;
-            padding-top: 2rem;
-            border-top: 1px solid #e9ecef;
-        }
-        .learn-more h2 {
-            text-align: center;
-            font-size: 2rem;
-            margin-bottom: 2rem;
-        }
-        .resource-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.5rem;
-        }
-        .resource-item {
-            background-color: #fff;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-        }
-        .resource-item h4 {
-            margin-top: 0;
-            font-size: 1.2rem;
-        }
-        .resource-item p {
-            flex-grow: 1;
-        }
-        .resource-item a {
-            text-decoration: none;
-            font-weight: 600;
-            color: #007bff;
-        }
-        .email-link-mobile { display: none; margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid #e9ecef; }
-        .email-link-mobile p { margin-top: 0; margin-bottom: 0.5rem; font-size: 1rem; color: #555; }
-        .email-link-mobile a { font-weight: 600; color: #007bff; }
-
-        /* --- Hamburger Menu Styles --- */
-        .hamburger { display: none; cursor: pointer; }
-        .bar { display: block; width: 25px; height: 3px; margin: 5px auto; transition: all 0.3s ease-in-out; background-color: #333; }
-        .mobile-nav { position: fixed; left: -100%; top: 0; z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: #fff; width: 100%; height: 100vh; text-align: center; transition: 0.3s; }
-        .mobile-nav.is-active { left: 0; }
-        .mobile-nav .nav-link, .mobile-nav .nav-button { margin: 1.5rem 0; font-size: 1.5rem; }
-
-        @media (max-width: 800px) {
-            .resource-grid {
-                grid-template-columns: 1fr;
-            }
-        }
         @media (max-width: 768px) {
-            .nav-links { display: none; }
-            .navbar { justify-content: space-between; }
-            .hero h1 { font-size: 2.2rem; }
-            .hero p { font-size: 1.1rem; }
-            .features { flex-direction: column; gap: 2.5rem; margin-top: 3rem; }
+            .page-header h1 { font-size: 2rem; }
             .container { padding: 1.5rem 1rem; }
-            .hero { padding: 2rem 0.5rem; }
-            .cta-button { padding: 0.8rem 1.5rem; font-size: 1.1rem; }
-            .email-link-mobile { display: block; }
-            .hamburger { display: block; z-index: 1001; }
-            .hamburger.is-active .bar:nth-child(2) { opacity: 0; }
-            .hamburger.is-active .bar:nth-child(1) { transform: translateY(8px) rotate(45deg); }
-            .hamburger.is-active .bar:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
         }
     </style>
     <!-- Google tag (gtag.js) -->
@@ -206,91 +111,53 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
+
       gtag('config', 'G-R12C8R93T1');
     </script>
 </head>
 <body>
 
     <nav class="navbar">
-        <div class="nav-brand">
-            <a href="index.html">
-                <img src="logo.svg" alt="Debt Payoff Planner Logo" style="height: 40px; vertical-align: middle;">
-            </a>
-        </div>
-        <div class="nav-links">
-            <a href="get-started.html" class="nav-link">User Guide</a>
-            <a href="app.html" class="nav-button">Launch Tool</a>
-        </div>
-        <div class="hamburger">
-            <span class="bar"></span>
-            <span class="bar"></span>
-            <span class="bar"></span>
-        </div>
+        <a href="index.html">
+            <img src="logo.svg" alt="Debt Payoff Planner Logo" style="height: 40px;">
+        </a>
     </nav>
-    
-    <div class="mobile-nav">
-         <a href="get-started.html" class="nav-link">User Guide</a>
-         <a href="app.html" class="nav-button">Launch Tool</a>
-    </div>
 
     <div class="container">
-        <section class="hero">
-            <h1>The Private Debt Payoff Planner</h1>
-            <p>The best free alternative to a complex debt spreadsheet. Create a clear payoff plan using the Snowball or Avalanche method.</p>
-            <a href="app.html" class="cta-button">Launch the Free Tool</a>
-            <p class="cta-subtitle">No signup required. 100% free (up to 5 debts).</p>
-            <div class="email-link-mobile">
-                <p>Best on a desktop? We can send you a link to use later.</p>
-                <a href="mailto:?subject=Link%20to%20the%20Private%20Debt%20Payoff%20Planner&body=Here's%20the%20link%20to%20the%20debt%20planner%20you%20wanted%20to%20check%20out%20on%20your%20desktop%3A%20https%3A//privatedebtplanner.com">
-                    Email Me a Link for Later &rarr;
-                </a>
-            </div>
-        </section>
+        <header class="page-header">
+            <h1>Financial Resources Guide</h1>
+            <p>A guide to powerful financial tools and strategies that can accelerate your journey to financial freedom.</p>
+        </header>
 
-        <section class="features">
-            <div class="feature-item">
-                <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-                <h3>Completely Private</h3>
-                <p>Unlike mobile apps that require an account, our tool is 100% anonymous. Your financial data is never sent to a server and always stays securely on your computer.</p>
-            </div>
-            <div class="feature-item">
-                <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-                <h3>Powerful & Free</h3>
-                <p>Use both the Debt Snowball and Debt Avalanche methods for free to find the perfect strategy for your financial situation.</p>
-            </div>
-            <div class="feature-item">
-                <svg class="feature-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                </svg>
-                <h3>You're In Control</h3>
-                <p>Export your debt plan to a file for backup. Import it on any device. You own your data.</p>
-            </div>
-        </section>
+        <main>
+            <section class="resource-section">
+                <h2>Tool 1: The High-Yield Savings Account (HYSA)</h2>
+                <p>An emergency fund is your best defense against unexpected expenses that could derail your debt payoff plan. A high-yield savings account is the perfect place to keep it, offering much higher interest rates than a traditional account and helping your money grow faster, risk-free.</p>
+                <h4>Why it's a game-changer:</h4>
+                <ul>
+                    <li><strong>Break the Debt Cycle:</strong> Having a cash buffer for emergencies (like a car repair or medical bill) means you won't have to reach for a high-interest credit card, which can undo months of hard work.</li>
+                    <li><strong>Earn More Interest:</strong> HYSAs offer significantly higher interest rates than standard savings accounts, allowing your emergency fund to grow effortlessly over time.</li>
+                    <li><strong>Safety and Security:</strong> Look for an FDIC-insured bank to ensure your money is protected up to the legal limit.</li>
+                </ul>
+            </section>
 
-        <section class="learn-more">
-            <h2>Learn More</h2>
-            <div class="resource-grid">
-                 <div class="resource-item">
-                    <h4>Debt Snowball vs. Debt Avalanche</h4>
-                    <p>Not sure which payoff method is right for you? Our detailed guide breaks down the pros and cons of each strategy.</p>
-                    <a href="guide.html">Read the Guide &rarr;</a>
-                </div>
-                <div class="resource-item">
-                    <h4>Spreadsheet Alternative</h4>
-                    <p>Discover why an automated tool is a more powerful and reliable alternative to a manual debt spreadsheet.</p>
-                    <a href="spreadsheet-alternative.html">Learn More &rarr;</a>
-                </div>
-                <div class="resource-item">
-                    <h4>Financial Resources</h4>
-                    <p>Explore powerful financial tools and strategies, like HYSAs and balance transfer cards, to accelerate your journey.</p>
-                    <a href="resources.html">Explore Resources &rarr;</a>
-                </div>
+            <section class="resource-section">
+                <h2>Tool 2: The 0% APR Balance Transfer Card</h2>
+                <p>If you have high-interest credit card debt, a balance transfer can be a powerful strategic move. By moving your debt from a high-APR card to a new card with a 0% introductory APR, you can save hundreds or even thousands in interest.</p>
+                 <h4>How it supercharges your plan:</h4>
+                <ul>
+                    <li><strong>Pause the Interest Clock:</strong> For a limited time (often 12-21 months), 100% of your payment goes directly to the principal balance, instead of being eaten up by interest charges.</li>
+                    <li><strong>Simplify Your Payments:</strong> Consolidating multiple credit card debts onto a single card can make your monthly payments easier to manage.</li>
+                    <li><strong>Important Note:</strong> This strategy is most effective if you are disciplined. Always aim to pay off the entire transferred balance before the 0% introductory period ends, and be aware of any balance transfer fees.</li>
+                </ul>
+            </section>
+            
+            <div class="cta-box">
+                <h2>Ready to Build Your Plan?</h2>
+                <p>Now that you know about these powerful tools, use our free, 100% private calculator to create a personal payoff plan and see how you can become debt-free.</p>
+                <a href="app.html" class="cta-button">Launch the Free Tool</a>
             </div>
-        </section>
+        </main>
     </div>
 
     <footer class="footer">
@@ -302,16 +169,6 @@
         </div>
     </footer>
 
-    <script>
-        const hamburger = document.querySelector(".hamburger");
-        const mobileNav = document.querySelector(".mobile-nav");
-
-        hamburger.addEventListener("click", () => {
-            hamburger.classList.toggle("is-active");
-            mobileNav.classList.toggle("is-active");
-        });
-    </script>
-    
 </body>
 </html>
 
