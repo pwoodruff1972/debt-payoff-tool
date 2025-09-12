@@ -120,6 +120,7 @@
             margin-top: 2rem;
             color: #888;
             font-size: 0.9rem;
+            border-top: 1px solid #e9ecef;
         }
         .footer-links {
             margin-top: 0.5rem;
@@ -132,19 +133,19 @@
         .footer-links a:hover {
             text-decoration: underline;
         }
-        .resources, .learn-more {
+        .learn-more {
             margin-top: 4rem;
             padding-top: 2rem;
             border-top: 1px solid #e9ecef;
         }
-        .resources h2, .learn-more h2 {
+        .learn-more h2 {
             text-align: center;
             font-size: 2rem;
             margin-bottom: 2rem;
         }
         .resource-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 1.5rem;
         }
         .resource-item {
@@ -152,10 +153,15 @@
             border: 1px solid #dee2e6;
             border-radius: 8px;
             padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
         }
         .resource-item h4 {
             margin-top: 0;
             font-size: 1.2rem;
+        }
+        .resource-item p {
+            flex-grow: 1;
         }
         .resource-item a {
             text-decoration: none;
@@ -167,55 +173,31 @@
         .email-link-mobile a { font-weight: 600; color: #007bff; }
 
         /* --- Hamburger Menu Styles --- */
-        .hamburger {
-            display: none;
-            cursor: pointer;
-        }
-        .bar {
-            display: block;
-            width: 25px;
-            height: 3px;
-            margin: 5px auto;
-            transition: all 0.3s ease-in-out;
-            background-color: #333;
-        }
-        .mobile-nav {
-            position: fixed;
-            left: -100%;
-            top: 0;
-            z-index: 999;
-            display: flex; /* THIS LINE WAS MISSING */
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background-color: #fff;
-            width: 100%;
-            height: 100vh;
-            text-align: center;
-            transition: 0.3s;
-        }
-        .mobile-nav.is-active {
-            left: 0;
-        }
-        .mobile-nav .nav-link, .mobile-nav .nav-button {
-            margin: 1.5rem 0;
-            font-size: 1.5rem;
-        }
+        .hamburger { display: none; cursor: pointer; }
+        .bar { display: block; width: 25px; height: 3px; margin: 5px auto; transition: all 0.3s ease-in-out; background-color: #333; }
+        .mobile-nav { position: fixed; left: -100%; top: 0; z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: #fff; width: 100%; height: 100vh; text-align: center; transition: 0.3s; }
+        .mobile-nav.is-active { left: 0; }
+        .mobile-nav .nav-link, .mobile-nav .nav-button { margin: 1.5rem 0; font-size: 1.5rem; }
 
+        @media (max-width: 800px) {
+            .resource-grid {
+                grid-template-columns: 1fr;
+            }
+        }
         @media (max-width: 768px) {
             .nav-links { display: none; }
-            .hamburger { display: block; z-index: 1001; }
-            .hamburger.is-active .bar:nth-child(2) { opacity: 0; }
-            .hamburger.is-active .bar:nth-child(1) { transform: translateY(8px) rotate(45deg); }
-            .hamburger.is-active .bar:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+            .navbar { justify-content: space-between; }
             .hero h1 { font-size: 2.2rem; }
             .hero p { font-size: 1.1rem; }
             .features { flex-direction: column; gap: 2.5rem; margin-top: 3rem; }
             .container { padding: 1.5rem 1rem; }
             .hero { padding: 2rem 0.5rem; }
             .cta-button { padding: 0.8rem 1.5rem; font-size: 1.1rem; }
-            .resource-grid { grid-template-columns: 1fr; }
             .email-link-mobile { display: block; }
+            .hamburger { display: block; z-index: 1001; }
+            .hamburger.is-active .bar:nth-child(2) { opacity: 0; }
+            .hamburger.is-active .bar:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+            .hamburger.is-active .bar:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
         }
     </style>
     <!-- Google tag (gtag.js) -->
@@ -302,21 +284,10 @@
                     <p>Discover why an automated tool is a more powerful and reliable alternative to a manual debt spreadsheet.</p>
                     <a href="spreadsheet-alternative.html">Learn More &rarr;</a>
                 </div>
-            </div>
-        </section>
-
-        <section class="resources">
-            <h2>Recommended Resources</h2>
-            <div class="resource-grid">
                 <div class="resource-item">
-                    <h4>High-Yield Savings Accounts</h4>
-                    <p>As you pay off debt, it's crucial to build an emergency fund. A high-yield savings account (HYSA) offers a much higher interest rate than a traditional account, helping your money grow faster.</p>
-                    <p><strong><em>Recommendations coming soon.</em></strong></p>
-                </div>
-                <div class="resource-item">
-                    <h4>Balance Transfer Credit Cards</h4>
-                    <p>Have high-interest credit card debt? A balance transfer card with a 0% introductory APR can save you hundreds or thousands in interest, allowing more of your payment to go directly to the principal.</p>
-                    <p><strong><em>Recommendations coming soon.</em></strong></p>
+                    <h4>Financial Resources</h4>
+                    <p>Explore powerful financial tools and strategies, like HYSAs and balance transfer cards, to accelerate your journey.</p>
+                    <a href="resources.html">Explore Resources &rarr;</a>
                 </div>
             </div>
         </section>
