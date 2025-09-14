@@ -21,6 +21,10 @@
     <priority>0.80</priority>
   </url>
   <url>
+    <loc>https://privatedebtplanner.com/resources.html</loc>
+    <priority>0.80</priority>
+  </url>
+  <url>
     <loc>https://privatedebtplanner.com/contact.html</loc>
     <priority>0.60</priority>
   </url>
